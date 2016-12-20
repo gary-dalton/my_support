@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="Installation of the Elastic Search ELK stack on an Ubuntu 16.04 server.">
+<meta name="keywords" content="">
+<meta name="author" content="Gary Dalton">
+<title>Elasticsearch</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Elasticsearch</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">6 December 2016</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_requirements">Requirements</a></li>
+<li><a href="#_install_oracle_s_java_jdk">Install Oracle&#8217;s Java JDK</a></li>
+<li><a href="#_install_elasticsearch">Install Elasticsearch</a>
+<ul class="sectlevel2">
+<li><a href="#_ensure_elasticsearch_starts_on_boot">Ensure Elasticsearch starts on boot.</a></li>
+<li><a href="#_verify_elasticsearch_is_running">Verify Elasticsearch is running.</a></li>
+<li><a href="#_basic_elasticsearch_configuration">Basic Elasticsearch configuration</a></li>
+</ul>
+</li>
+<li><a href="#_install_x_pack_for_elasticsearch">Install X-Pack for Elasticsearch</a></li>
+<li><a href="#_install_kibana">Install Kibana</a>
+<ul class="sectlevel2">
+<li><a href="#_configure">Configure</a></li>
+<li><a href="#_nginx_reverse_proxy">NGinx Reverse Proxy</a></li>
+</ul>
+</li>
+<li><a href="#_install_x_pack_for_kibana">Install X-Pack for Kibana</a></li>
+<li><a href="#_install_logstash">Install Logstash</a></li>
+<li><a href="#_beats">Beats</a>
+<ul class="sectlevel2">
+<li><a href="#_generate_ssl_certificates">Generate SSL Certificates</a></li>
+<li><a href="#_configure_logstash">Configure Logstash</a></li>
+</ul>
+</li>
+<li><a href="#_other">OTHER</a></li>
+<li><a href="#_working_with_python_2_7">Working with Python 2.7</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>Installation of the Elastic Search ELK stack on an Ubuntu 16.04 server.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_requirements">Requirements</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A working Ubuntu 16.04 server.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_oracle_s_java_jdk">Install Oracle&#8217;s Java JDK</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mostly follows <a href="https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt-get install default-jdk</code></p>
+</li>
+<li>
+<p><code>sudo apt install software-properties-common</code></p>
+</li>
+<li>
+<p><code>sudo add-apt-repository ppa:webupd8team/java</code></p>
+</li>
+<li>
+<p><code>sudo apt-get update</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install oracle-java8-installer</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Set as default java</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo update-alternatives --config java</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>For my system the path is <em>/usr/lib/jvm/java-8-oracle/jre/bin/java</em></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>sudo nano /etc/environment</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add <em>JAVA_HOME="path"</em> where path is the system path you just set.</p>
+</li>
+<li>
+<p>Save and exit nano</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>source /etc/environment</code></p>
+</li>
+<li>
+<p>Verify with <code>echo $JAVA_HOME</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_elasticsearch">Install Elasticsearch</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mostly follows <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.0/deb.html" class="bare">https://www.elastic.co/guide/en/elasticsearch/reference/5.0/deb.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Signing key, <code>wget -qO - <a href="https://artifacts.elastic.co/GPG-KEY-elasticsearch" class="bare">https://artifacts.elastic.co/GPG-KEY-elasticsearch</a> | sudo apt-key add -</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install apt-transport-https</code></p>
+</li>
+<li>
+<p><code>echo "deb <a href="https://artifacts.elastic.co/packages/5.x/apt" class="bare">https://artifacts.elastic.co/packages/5.x/apt</a> stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list</code></p>
+</li>
+<li>
+<p><code>sudo apt-get update</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install elasticsearch</code></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_ensure_elasticsearch_starts_on_boot">Ensure Elasticsearch starts on boot.</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo /bin/systemctl daemon-reload</code></p>
+</li>
+<li>
+<p><code>sudo update-rc.d elasticsearch defaults 95 10</code></p>
+</li>
+<li>
+<p><code>sudo /bin/systemctl enable elasticsearch.service</code></p>
+</li>
+<li>
+<p>Start <code>sudo service elasticsearch start</code></p>
+</li>
+<li>
+<p>Stop <code>sudo service elasticsearch stop</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_verify_elasticsearch_is_running">Verify Elasticsearch is running.</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo service elasticsearch status</code></p>
+</li>
+<li>
+<p>check logfile <code>sudo cat /var/log/elasticsearch/elasticsearch.log</code></p>
+</li>
+<li>
+<p>Check with HTTP request <code>curl -XGET 'localhost:9200/?pretty'</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>No curl? Install it <code>sudo apt install curl</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_basic_elasticsearch_configuration">Basic Elasticsearch configuration</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mostly follows <a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04</a> and <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.0/important-settings.html" class="bare">https://www.elastic.co/guide/en/elasticsearch/reference/5.0/important-settings.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /etc/elasticsearch/elasticsearch.yml</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set the <em>cluster.name</em> and <em>node.name</em></p>
+</li>
+<li>
+<p>Set <em>path.data: /var/lib/elasticsearch</em></p>
+</li>
+<li>
+<p>Set <em>xpack.security.enabled: false</em></p>
+</li>
+<li>
+<p>Save and exit</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Reload, <code>sudo service elasticsearch restart</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_x_pack_for_elasticsearch">Install X-Pack for Elasticsearch</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Follows <a href="https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html" class="bare">https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack</code></p>
+</li>
+<li>
+<p><code>sudo service elasticsearch restart</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_kibana">Install Kibana</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mostly follows <a href="https://www.elastic.co/guide/en/kibana/5.0/deb.html" class="bare">https://www.elastic.co/guide/en/kibana/5.0/deb.html</a> and <a href="https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt install kibana</code></p>
+</li>
+<li>
+<p><code>sudo update-rc.d kibana defaults 95 10</code></p>
+</li>
+<li>
+<p><code>sudo /bin/systemctl enable kibana.service</code></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_configure">Configure</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /etc/kibana/kibana.yml</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Set <em>server.host: "localhost"</em></p>
+</li>
+<li>
+<p>Set <em>xpack.security.enabled: false</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_nginx_reverse_proxy">NGinx Reverse Proxy</h3>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Since Kibana listens on localhost, a reverse proxy is needed to allow external access to. Nginx has great reverse proxy capabilities.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt-get install nginx apache2-utils</code></p>
+</li>
+<li>
+<p><code>sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Use a different user than  <em>kibanaadmin</em></p>
+</li>
+<li>
+<p>Enter your unique password</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default-orig</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Configure Nginx to direct HTTP requests to the Kibana, listening on localhost:5601. Nginx will use the htpasswd.users file and require basic authentication.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /etc/nginx/sites-available/default</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Enter the following, save, and exit</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>server {
+    listen 80;
+    server_name your_domain.com;
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo service nginx restart</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You may verify that Kibana is working with Elasticsearch by visiting your_domain.com. Nginx should direct you to the Kibana management page, requesting that you configure an index pattern. We will return to setting an index pattern later. If Kibana complains that it cannot connect to Elasticsearch, verify that elasticsearch is running and ready.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_x_pack_for_kibana">Install X-Pack for Kibana</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Follows <a href="https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html" class="bare">https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo /usr/share/kibana/bin/kibana-plugin install x-pack</code></p>
+</li>
+<li>
+<p><code>sudo service kibana restart</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_logstash">Install Logstash</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Follows <a href="https://www.elastic.co/guide/en/logstash/5.0/installing-logstash.html" class="bare">https://www.elastic.co/guide/en/logstash/5.0/installing-logstash.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>For reasons related to $JAVA_HOME, I was unable to install logstash using sudo.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo -i</code></p>
+</li>
+<li>
+<p><code>apt install logstash</code></p>
+</li>
+<li>
+<p><code>exit</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Test it</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>I also had some problems locating the  /etc/logstash/logstash.yml file</p>
+</li>
+<li>
+<p><code>/usr/share/logstash/bin/logstash --path.settings /etc/logstash -e 'input { stdin { } } output { stdout {} }'</code></p>
+</li>
+<li>
+<p><code>hello world</code></p>
+</li>
+<li>
+<p>Should see reply similar to <em>2016-12-01T02:12:53.612Z localhost hello world</em></p>
+</li>
+<li>
+<p>Exit with _ CTRL-D_</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_beats">Beats</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Logstash on the ELK server must be configured to accept data from the various Beats.</p>
+</div>
+<div class="sect2">
+<h3 id="_generate_ssl_certificates">Generate SSL Certificates</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo mkdir -p /etc/pki/tls/certs</code></p>
+</li>
+<li>
+<p><code>sudo mkdir /etc/pki/tls/private</code></p>
+</li>
+<li>
+<p><code>cd /etc/pki/tls</code></p>
+</li>
+<li>
+<p>In the following command, replace <em>elk.server.name</em> with the fully qualified domain name of your elk server.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo openssl req -subj '/CN=elk.server.name/' -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configure_logstash">Configure Logstash</h3>
+<div class="paragraph">
+<p>Verify that the Beats input plugin is available to Logstash, <code>/usr/share/logstash/bin/logstash-plugin list</code>. Look for <em>logstash-input-beats</em>.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04</a></p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_other">OTHER</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I have installed 2 pdf to other converters on my windows.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Tika, <a href="https://tika.apache.org/1.14/gettingstarted.html" class="bare">https://tika.apache.org/1.14/gettingstarted.html</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>java -jar c:\bin\tika-app.jar -t test2.pdf</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>pdf2htmlEX, <a href="https://github.com/coolwanglu/pdf2htmlEX" class="bare">https://github.com/coolwanglu/pdf2htmlEX</a>
+**</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Another possibility is tabula, <a href="http://tabula.technology/" class="bare">http://tabula.technology/</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://stackoverflow.com/questions/29868541/pdf-data-and-table-scraping-to-excel" class="bare">https://stackoverflow.com/questions/29868541/pdf-data-and-table-scraping-to-excel</a></p>
+</li>
+<li>
+<p><a href="http://wauwatosacitywi.iqm2.com/Citizens/default.aspx" class="bare">http://wauwatosacitywi.iqm2.com/Citizens/default.aspx</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_working_with_python_2_7">Working with Python 2.7</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt-get install python</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install python-elasticsearch</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2016-12-19 18:01:44 Central Standard Time
+</div>
+</div>
+</body>
+</html>

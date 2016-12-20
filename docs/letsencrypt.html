@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="Using Let's Encrypt as a free, automated, and open Certificate Authority on Ubuntu server. See https://letsencrypt.org/">
+<meta name="keywords" content="https, letsencrypt, website, security, apache, nginx, ssl">
+<meta name="author" content="Gary Dalton">
+<title>Let&#8217;s Encrypt</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Let&#8217;s Encrypt</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">6 December 2016</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_requirements">Requirements</a></li>
+<li><a href="#_resources">Resources</a></li>
+<li><a href="#_install_certbot">Install Certbot</a></li>
+<li><a href="#_nginx">Nginx</a>
+<ul class="sectlevel2">
+<li><a href="#_get_the_certificate">Get the certificate</a></li>
+<li><a href="#_update_configurations_for_ssl">Update configurations for SSL</a></li>
+</ul>
+</li>
+<li><a href="#_apache_systems">Apache Systems</a>
+<ul class="sectlevel2">
+<li><a href="#_get_certificate">Get Certificate</a></li>
+<li><a href="#_configure_for_ssl">Configure for SSL</a></li>
+<li><a href="#_enable_the_sites">Enable the Sites</a></li>
+<li><a href="#_test_and_reload_the_configurations">Test and Reload the Configurations</a></li>
+<li><a href="#_renewal_on_apache_system">Renewal on Apache System</a></li>
+</ul>
+</li>
+<li><a href="#_using_certbot_auto">Using certbot-auto</a>
+<ul class="sectlevel2">
+<li><a href="#_renewal">Renewal</a></li>
+</ul>
+</li>
+<li><a href="#_conclusion">Conclusion</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>Using Let&#8217;s Encrypt as a free, automated, and open Certificate Authority on Ubuntu server. See <a href="https://letsencrypt.org/" class="bare">https://letsencrypt.org/</a></p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_requirements">Requirements</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A working Ubuntu 16.04 server running Nginx web server. Determine your Ubuntu version with <code>lsb_release -a</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources">Resources</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://letsencrypt.org/" class="bare">https://letsencrypt.org/</a></p>
+</li>
+<li>
+<p><a href="https://certbot.eff.org/" class="bare">https://certbot.eff.org/</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_certbot">Install Certbot</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Since Certbot is packaged for your system, all you&#8217;ll need to do is apt-get the following packages.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt update</code></p>
+</li>
+<li>
+<p><code>sudo apt upgrade</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install letsencrypt</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_nginx">Nginx</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Certbot can be used for Apache or Nginx site. This is not a guide on Nginx, so only the minimum requirements for a very basic site are mentioned here.</p>
+</div>
+<div class="paragraph">
+<p>Let&#8217;s say we have two domains, example.com and another.com. Their static files are served from <em>/var/www/example</em> and <em>/var/www/another</em>. View their example configuration files below.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/nginx/sites-available/example</div>
+<div class="content">
+<pre># Virtual Host configuration for example.com
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name example.com;
+    root /var/www/example;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">/etc/nginx/sites-available/another</div>
+<div class="content">
+<pre># Virtual Host configuration for another.com
+server {
+    listen 80;
+    listen [::]:80;
+    server_name another.com;
+    root /var/www/another;
+    index index.html index.htm;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+        expires max;
+        log_not_found off;
+    }
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Enable the sites and reload Nginx.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/</code></p>
+</li>
+<li>
+<p><code>sudo ln -s /etc/nginx/sites-available/another /etc/nginx/sites-enabled/</code></p>
+</li>
+<li>
+<p><code>sudo service nginx reload</code></p>
+</li>
+</ul>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Disable a site by deleting the file in <em>/etc/nginx/sites-enabled/</em>
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_get_the_certificate">Get the certificate</h3>
+<div class="paragraph">
+<p>For Nginx on Ubuntu 16.04, we can only get the certificate but cannot fully install it. The following will get a certificate that is valid on the following domains: gruffgoat.com, www.gruffgoat.com, m.gruffgoat.com, werkspc.com, m.werkspc.com, and elk.werkspc.com.</p>
+</div>
+<div class="paragraph">
+<p><code>letsencrypt certonly --webroot -w /var/www/example -d example.com -d www.example.com -d m.example.com -w /var/www/another -d another.com -d m.another.com -d elk.another.com</code></p>
+</div>
+<div class="paragraph">
+<p>Upon success, you receive a message similar to:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Congratulations! Your certificate and chain have been saved at /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will
+expire on 2017-01-01. To obtain a new version of the certificate in
+the future, simply run Let's Encrypt again.</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_update_configurations_for_ssl">Update configurations for SSL</h3>
+<div class="paragraph">
+<p>Now Nginx must be told to use the new certificates. Just add a few lines to both configuration files.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/nginx/sites-available/example</div>
+<div class="content">
+<pre># Also /etc/nginx/sites-available/another
+# Add these lines to the current configuration within server
+
+    listen 443 ssl;
+    listen [::]:443;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers HIGH:!aNULL:!MD5;</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo service nginx reload</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_apache_systems">Apache Systems</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Even though Certbot has a good plugin for Apache, I prefer to perform much of the setup manually.</p>
+</div>
+<div class="sect2">
+<h3 id="_get_certificate">Get Certificate</h3>
+<div class="paragraph">
+<p>Get a certificate that is valid on the following domains: tosamakers.com, www.tosamakers.com, tosaeasttowne.org, www.tosaeasttowne.org, bd-designs.com, and www.bd-designs.com.</p>
+</div>
+<div class="paragraph">
+<p><code>letsencrypt certonly --webroot -w /var/www/tosamakers.com/html -d tosamakers.com -d www.tosamakers.com -w /var/www/tosaeasttowne.org/html -d tosaeasttowne.org -d www.tosaeasttowne.org -w /var/www/bd-designs.com/html -d bd-designs.com -d www.bd-designs.com</code></p>
+</div>
+<div class="paragraph">
+<p>Upon success, you receive a message similar to:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Congratulations! Your certificate and chain have been saved at /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will
+expire on 2017-01-01. To obtain a new version of the certificate in
+the future, simply run Let's Encrypt again.</pre>
+</div>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Make certain to note the location of the fullchain.pem.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configure_for_ssl">Configure for SSL</h3>
+<div class="paragraph">
+<p>Each domain that uses a certificate must be configured for it. Create a new SSL configuration file for each domain. The example below is the SSL configuration file for tosamakers.com. Note that the SSLCertificateFile and SSLCertificateKeyFile lines point to the location of the fullchain.pem.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/apache2/sites-available/tosamakers.com-ssl.conf</div>
+<div class="content">
+<pre># start TOSAMAKERS.COM
+&lt;IfModule mod_ssl.c&gt;
+&lt;VirtualHost *:443&gt;
+  ServerName tosamakers.com
+  ServerAlias *.tosamakers.com
+
+  DocumentRoot /var/www/tosamakers.com/html
+  &lt;Directory /var/www/tosamakers.com/html&gt;
+    Options -Indexes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Order allow,deny
+    allow from all
+  &lt;/Directory&gt;
+SSLCertificateFile /etc/letsencrypt/live/tosaeasttowne.org/fullchain.pem
+SSLCertificateKeyFile /etc/letsencrypt/live/tosaeasttowne.org/privkey.pem
+Include /etc/letsencrypt/options-ssl-apache.conf
+&lt;/VirtualHost&gt;
+&lt;/IfModule&gt;
+# end TOSAMAKERS.COM</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This configuration also has the line <em>Include /etc/letsencrypt/options-ssl-apache.conf</em>. The Certbot Apache plugin creates and links to this file. Let&#8217;s follow this practice as it makes the configurations more uniform and easier to read. The contents of this file are shown below.</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/letsencrypt/options-ssl-apache.conf</div>
+<div class="content">
+<pre># Baseline setting to Include for SSL sites
+
+SSLEngine on
+
+# Intermediate configuration, tweak to your needs
+SSLProtocol             all -SSLv2 -SSLv3
+SSLCipherSuite          ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+SSLHonorCipherOrder     on
+SSLCompression          off
+
+SSLOptions +StrictRequire
+
+# Add vhost name to log entries:
+LogFormat "%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-agent}i\"" vhost_combined
+LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b" vhost_common
+
+#CustomLog /var/log/apache2/access.log vhost_combined
+#LogLevel warn
+#ErrorLog /var/log/apache2/error.log
+
+# Always ensure Cookies have "Secure" set (JAH 2012/1)
+#Header edit Set-Cookie (?i)^(.*)(;\s*secure)??((\s*;)?(.*)) "$1; Secure$3$4"</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_enable_the_sites">Enable the Sites</h3>
+<div class="paragraph">
+<p>The sites are available, now lets enable them.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo a2ensite tosamakers.com-ssl example.com-ssl</code></p>
+</li>
+<li>
+<p>Sites may be disabled with <code>sudo a2dissite</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_test_and_reload_the_configurations">Test and Reload the Configurations</h3>
+<div class="paragraph">
+<p>Before reloading the configurations or restarting Apache, it is wise to check the configuration. Typos are easy to make and downtime is expensive.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Test with <code>sudo apachectl -t</code></p>
+</li>
+<li>
+<p>Reload with <code>sudo service apache2 reload</code></p>
+</li>
+<li>
+<p>Or, restart with <code>sudo service apache2 restart</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_renewal_on_apache_system">Renewal on Apache System</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo letsencrypt renew --dry-run --agree-tos</code></p>
+</li>
+<li>
+<p>MORE TO COME</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_certbot_auto">Using certbot-auto</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Certbot-auto is for those systems which do not have a certbot package. The command syntax for <em>certbot-auto</em> is the same as it is for <em>letsencrypt</em>.</p>
+</div>
+<div class="sect2">
+<h3 id="_renewal">Renewal</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Dry run, <code>sudo ./certbot-auto renew --dry-run</code></p>
+</li>
+<li>
+<p>Assuming success, <code>sudo ./certbot-auto renew</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>new certificate deployed with reload of apache server; fullchain is
+/etc/letsencrypt/live/secure.npexchange.org/fullchain.pem</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&lt;VirtualHost *:80&gt;
+        ServerName
+        ServerAdmin <a href="mailto:gary@gruffgoat.com">gary@gruffgoat.com</a></p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre># ---- Configure WSGI Listener(s) ----
+# This assumes you installed to /var/www and strictly followed the
+# installation instructions. Modify as needed.
+#
+# You may also need to modify the twenty47.wgsi file</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>WSGIDaemonProcess  twenty47 user=www-data group=www-data threads=5
+WSGIScriptAlias / /var/www/Twenty47/twenty47.wsgi</pre>
+</div>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>&lt;Directory /var/www/Twenty47/twenty47&gt;
+        WSGIProcessGroup twenty47
+        WSGIApplicationGroup %{GLOBAL}
+        Order deny,allow
+        Allow from all
+&lt;/Directory&gt;</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>&lt;/VirtualHost&gt;</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_conclusion">Conclusion</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The Let&#8217;s Encrypt certificate expires in 90 days and there are some methods available to automatically renew the certificate. Based on some additional configuration changes I make on some of my servers, this does not always work and I just make certain to use a hard reminder system.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2016-12-19 18:01:41 Central Standard Time
+</div>
+</div>
+</body>
+</html>

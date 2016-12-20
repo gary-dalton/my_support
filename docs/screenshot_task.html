@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="Use a Powershell script to take and save screenshots in the background. The script is called via the Windows Task Scheduler.">
+<meta name="keywords" content="powershell, screenshot, tasks, task scheduler, task manager, windows-10, background">
+<meta name="author" content="Gary Dalton">
+<title>Screenshot Task</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Screenshot Task</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">14 December 2016</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_screenshot_function_and_script">Screenshot Function and Script</a></li>
+<li><a href="#_sign_your_script">Sign your Script</a></li>
+<li><a href="#_test_run">Test Run</a></li>
+<li><a href="#_task_scheduler">Task Scheduler</a>
+<ul class="sectlevel2">
+<li><a href="#_open">Open</a></li>
+<li><a href="#_create_task">Create Task</a></li>
+</ul>
+</li>
+<li><a href="#_resources">Resources</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>Use a Powershell script to take and save screenshots in the background. The script is called via the Windows Task Scheduler.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This example uses Windows 10, so change your targets as appropriate.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_screenshot_function_and_script">Screenshot Function and Script</h2>
+<div class="sectionbody">
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Mostly from <a href="https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell" class="bare">https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Create a new script named <em>screenshot.ps1</em>. Insert the following and save it. Change the filename path to match your needs.</p>
+</div>
+<div class="listingblock">
+<div class="title">screenshot.ps1</div>
+<div class="content">
+<pre>Add-Type -AssemblyName System.Windows.Forms
+[Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+function screenshot([Drawing.Rectangle]$bounds, $path) {
+   $bmp = New-Object Drawing.Bitmap $bounds.width, $bounds.height
+   $graphics = [Drawing.Graphics]::FromImage($bmp)
+
+   $graphics.CopyFromScreen($bounds.Location, [Drawing.Point]::Empty, $bounds.size)
+
+   $bmp.Save($path)
+
+   $graphics.Dispose()
+   $bmp.Dispose()
+}
+
+While($True){
+
+    $width = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $height = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+    $bounds = [Drawing.Rectangle]::FromLTRB(0, 0, $width, $height)
+
+    $timestamp = get-date -Format ddMMyhhmmss
+    $filename = "C:\bin\screenshot" + $timestamp + ".jpg"
+
+    screenshot $bounds $filename
+
+    $sleeptime = 900
+    Start-Sleep
+}</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A few items to change to match your environment and needs are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>$filename, change to <em>C:\bin\screenshot</em> to your chosen path</p>
+</li>
+<li>
+<p>$sleeptime, change to number of seconds between screenshots</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sign_your_script">Sign your Script</h2>
+<div class="sectionbody">
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+See <a href="self-sign_powershell.html" class="bare">self-sign_powershell.html</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Start Powershell as a user</p>
+</li>
+<li>
+<p><code>$cert = @(Get-ChildItem cert:\CurrentUser\My -codesigning)[0]</code></p>
+</li>
+<li>
+<p><code>Set-AuthenticodeSignature screenshot.ps1 $cert</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test_run">Test Run</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>For testing, I set <code>$sleeptime = 5</code></p>
+</li>
+<li>
+<p>Run command, using <em>WindowsKey + r</em></p>
+</li>
+<li>
+<p><code>powershell -windowstyle hidden \bin\screenshot.ps1</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Substitute <em>\bin\screenshot.ps1</em> with your path</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify that screenshots are saved to your chosen $filename</p>
+</li>
+<li>
+<p>Kill the powershell script using Task Manager</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Task Manager shortcut is <em>Ctrl+Shift+Esc</em></p>
+</li>
+<li>
+<p>In the <em>Processes</em> tab under the <em>Background processes</em> select <em>Windows Powershell</em></p>
+</li>
+<li>
+<p>Click <em>End task</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_task_scheduler">Task Scheduler</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_open">Open</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Launch Task Scheduler</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Search via <em>WindowsKey + s</em></p>
+</li>
+<li>
+<p>Start typing <em>task</em>, usually enough</p>
+</li>
+<li>
+<p>Click <em>Task Scheduler</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_create_task">Create Task</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Click <em>Create Task</em></p>
+</li>
+<li>
+<p>On the <em>General</em> tab, give the task a name</p>
+</li>
+<li>
+<p>On the <em>Triggers</em> tab, click <em>New</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Begin the task <em>At log on</em> for <em>Any user</em></p>
+</li>
+<li>
+<p>Click <em>Ok</em></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>On the <em>Actions</em> tab, click <em>New</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p><em>Action</em> is <em>Start a program</em></p>
+</li>
+<li>
+<p><em>Program/script</em> is <em>powershell</em></p>
+</li>
+<li>
+<p><em>Add arguments</em> is <em>-windowstyle hidden \bin\screenshot.ps1</em></p>
+</li>
+<li>
+<p>Click <em>Ok</em></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Click <em>Ok</em></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The task has been added and will run at the next and every log on. Review the other settings available in Task Scheduler to make certain the task runs as you require it. The Screenshot script does not need to be run multiple times as it  continues to run in the background while it sleeps.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources">Resources</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell" class="bare">https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell</a></p>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/7967699/get-screen-resolution-using-wmi-powershell-in-windows-7" class="bare">https://stackoverflow.com/questions/7967699/get-screen-resolution-using-wmi-powershell-in-windows-7</a></p>
+</li>
+<li>
+<p><a href="https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8" class="bare">https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2016-12-19 18:01:43 Central Standard Time
+</div>
+</div>
+</body>
+</html>

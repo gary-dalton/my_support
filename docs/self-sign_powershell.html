@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="Self-signing your Windows Powershell scripts allows you to run your scripts without fully disabling security. Disabling security would permit malicious scripts to run.">
+<meta name="keywords" content="powershell, windows, code, certificate, signing, makecert">
+<meta name="author" content="Gary Dalton">
+<title>Self-Sign a Powershell Script</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Self-Sign a Powershell Script</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">11 December 2016</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_install_the_windows_sdk">Install the Windows SDK</a></li>
+<li><a href="#_make_makecert_available">Make makecert available</a>
+<ul class="sectlevel2">
+<li><a href="#_find">Find</a></li>
+<li><a href="#_copy">Copy</a></li>
+<li><a href="#_add_to_path">Add to PATH</a></li>
+</ul>
+</li>
+<li><a href="#_using_makecert">Using makecert</a>
+<ul class="sectlevel2">
+<li><a href="#_local_certificate_authority">Local Certificate Authority</a></li>
+<li><a href="#_generate_a_personal_certificate">Generate a Personal Certificate</a></li>
+</ul>
+</li>
+<li><a href="#_change_powershell_execution_policy">Change Powershell Execution Policy</a></li>
+<li><a href="#_sign_some_code">Sign some code</a>
+<ul class="sectlevel2">
+<li><a href="#_downloaded_scripts">Downloaded Scripts</a></li>
+</ul>
+</li>
+<li><a href="#_resources">Resources</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>Self-signing your Windows Powershell scripts allows you to run your scripts without fully disabling security. Disabling security would permit malicious scripts to run.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+This example uses Windows 10, so change your targets as appropriate.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_the_windows_sdk">Install the Windows SDK</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Download the Windows 10 SDK from <a href="https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk" class="bare">https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk</a></p>
+</div>
+<div class="paragraph">
+<p>Install the SDK by running the downloaded executable.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_make_makecert_available">Make makecert available</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_find">Find</h3>
+<div class="paragraph">
+<p>In my version of Windows, make cert is found under the folder, <em>C:\Program Files (x86)\Windows Kits\10\bin</em>. Explore to find the exact location of makecert.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_copy">Copy</h3>
+<div class="paragraph">
+<p>I choose to copy the makecert to my C:\bin folder (already in my PATH) but you may choose to add the folder to your path instead.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>In Powershell, <code>copy "C:\Program Files (x86)\Windows Kits\10\bin\x64\makecert.exe" C:\bin</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_add_to_path">Add to PATH</h3>
+<div class="paragraph">
+<p>Alternatively, you may add the folder to your path.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Windows key - r</code></p>
+</li>
+<li>
+<p>Enter <em>SystemPropertiesAdvanced</em></p>
+</li>
+<li>
+<p>Click <em>Environment Variables</em></p>
+</li>
+<li>
+<p>Select <em>PATH</em></p>
+</li>
+<li>
+<p>Click <em>Edit</em></p>
+</li>
+<li>
+<p>Add <em>C:\Program Files (x86)\Windows Kits\10\bin\x64</em> as a new variable in your path</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_using_makecert">Using makecert</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Start Powershell as an Administrator</p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_local_certificate_authority">Local Certificate Authority</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>makecert -n "CN=PowerShell Local Certificate Root" -a sha1 -eku 1.3.6.1.5.5.7.3.3 -r -sv root.pvk root.cer -ss Root -sr localMachine</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Enter passwords</p>
+</li>
+<li>
+<p>Operation should succeed</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify via <code>CertMgr</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Navigate to <em>Trusted Root Certificate Authorities</em> &gt;&gt; <em>Certificates</em></p>
+</li>
+<li>
+<p>Find the certificate named, <em>PowerShell Local Certificate Root</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_generate_a_personal_certificate">Generate a Personal Certificate</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>makecert -pe -n "CN=Gary PowerShell Cert" -ss MY -a sha1 -eku 1.3.6.1.5.5.7.3.3 -iv root.pvk -ic root.cer</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Enter password</p>
+</li>
+<li>
+<p>Operation should succeed</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify via <code>CertMgr</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Navigate to <em>Personal</em> &gt;&gt; <em>Certificates</em></p>
+</li>
+<li>
+<p>Find the certificate named, <em>Gary PowerShell Cert</em></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify your certificate is available, <code>get-childitem cert:\CurrentUser\my -codesigning</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>You should see your certificate listed</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The certificate is now ready for use on the current system. See <a href="http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html" class="bare">http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html</a> for information on how to export it to other systems.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_change_powershell_execution_policy">Change Powershell Execution Policy</h2>
+<div class="sectionbody">
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+See <a href="http://go.microsoft.com/fwlink/?LinkID=135170" class="bare">http://go.microsoft.com/fwlink/?LinkID=135170</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Show current execution policy, <code>Get-ExecutionPolicy -List</code></p>
+</li>
+<li>
+<p>Change execution policy to AllSigned with a CurrentUSer scope, <code>Set-ExecutionPolicy AllSigned -Scope CurrentUser</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sign_some_code">Sign some code</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Have your freshly written script ready for signing. For demonstration, the script is named example.ps1.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Start Powershell as a user</p>
+</li>
+<li>
+<p><code>$cert = @(Get-ChildItem cert:\CurrentUser\My -codesigning)[0]</code></p>
+</li>
+<li>
+<p><code>$file = "\bin\screenshot.ps1"</code></p>
+</li>
+<li>
+<p><code>Set-AuthenticodeSignature $file $cert</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The reply you receive should be similar to:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>Directory: C:\path
+
+SignerCertificate        Status                  Path
+-----------------        ------                  ----
+34552NJNH568NJBH3256I    Valid                   example.ps1</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_downloaded_scripts">Downloaded Scripts</h3>
+<div class="paragraph">
+<p>Downloaded scripts cannot be signed due to special metadata attached to the file. This may be viewed by opening a <em>cmd</em> window and entering the command <code>dir /r</code> or <code>dir /r filename</code>. You will notice that some files may have a second entry similar to the following:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>08/27/2015  12:51 PM    372,681 filename
+                             26 filename:Zone.Identifier:$DATA</pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_resources">Resources</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html" class="bare">http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html</a></p>
+</li>
+<li>
+<p><a href="https://community.spiceworks.com/how_to/122368-signing-a-powershell-script-with-a-self-signed-certificate" class="bare">https://community.spiceworks.com/how_to/122368-signing-a-powershell-script-with-a-self-signed-certificate</a></p>
+</li>
+<li>
+<p><a href="https://stackoverflow.com/questions/31772109/makecert-missing-from-windows-10-and-visual-studio-2015-install" class="bare">https://stackoverflow.com/questions/31772109/makecert-missing-from-windows-10-and-visual-studio-2015-install</a></p>
+</li>
+<li>
+<p><a href="http://woshub.com/how-to-create-self-signed-certificate-with-powershell/" class="bare">http://woshub.com/how-to-create-self-signed-certificate-with-powershell/</a></p>
+</li>
+<li>
+<p><a href="https://knowledge.symantec.com/support/code-signing-support/index?page=content&amp;id=SO9982&amp;pmv=print&amp;actp=PRINT&amp;viewlocale=en_US" class="bare">https://knowledge.symantec.com/support/code-signing-support/index?page=content&amp;id=SO9982&amp;pmv=print&amp;actp=PRINT&amp;viewlocale=en_US</a></p>
+</li>
+<li>
+<p><a href="https://msdn.microsoft.com/en-us/library/aa388165(v=vs.85).aspx" class="bare">https://msdn.microsoft.com/en-us/library/aa388165(v=vs.85).aspx</a></p>
+</li>
+<li>
+<p><a href="https://msdn.microsoft.com/powershell/reference/5.1/Microsoft.PowerShell.Core/about/about_Execution_Policies" class="bare">https://msdn.microsoft.com/powershell/reference/5.1/Microsoft.PowerShell.Core/about/about_Execution_Policies</a></p>
+</li>
+<li>
+<p><a href="http://www.howtogeek.com/70012/what-causes-the-file-downloaded-from-the-internet-warning-and-how-can-i-easily-remove-it/" class="bare">http://www.howtogeek.com/70012/what-causes-the-file-downloaded-from-the-internet-warning-and-how-can-i-easily-remove-it/</a></p>
+</li>
+<li>
+<p><a href="http://woshub.com/how-windows-determines-that-the-file-has-been-downloaded-from-the-internet/" class="bare">http://woshub.com/how-windows-determines-that-the-file-has-been-downloaded-from-the-internet/</a></p>
+</li>
+<li>
+<p><a href="https://technet.microsoft.com/en-us/sysinternals/bb545027.aspx" class="bare">https://technet.microsoft.com/en-us/sysinternals/bb545027.aspx</a></p>
+</li>
+<li>
+<p><a href="https://blogs.technet.microsoft.com/heyscriptingguy/2010/06/17/hey-scripting-guy-how-can-i-sign-windows-powershell-scripts-with-an-enterprise-windows-pki-part-2-of-2/" class="bare">https://blogs.technet.microsoft.com/heyscriptingguy/2010/06/17/hey-scripting-guy-how-can-i-sign-windows-powershell-scripts-with-an-enterprise-windows-pki-part-2-of-2/</a></p>
+</li>
+<li>
+<p><a href="http://www.hanselman.com/blog/SigningPowerShellScripts.aspx" class="bare">http://www.hanselman.com/blog/SigningPowerShellScripts.aspx</a></p>
+</li>
+<li>
+<p><a href="https://4sysops.com/archives/sign-your-powershell-scripts-to-increase-security/" class="bare">https://4sysops.com/archives/sign-your-powershell-scripts-to-increase-security/</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2016-12-19 18:01:42 Central Standard Time
+</div>
+</div>
+</body>
+</html>

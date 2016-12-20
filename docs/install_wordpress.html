@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="WordPress on a LAMP stack with Ubuntu">
+<meta name="keywords" content="lamp, ubuntu, apache, mysql, php, phpmyadmin, wordpress, guide, install">
+<meta name="author" content="Gary Dalton">
+<title>Install WordPress</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Install WordPress</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">20 July 2016</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_install_the_lamp_stack">Install the LAMP Stack</a></li>
+<li><a href="#_test_the_lamp">Test the LAMP</a>
+<ul class="sectlevel2">
+<li><a href="#_test_apache">Test Apache</a></li>
+<li><a href="#_test_php">Test PHP</a></li>
+<li><a href="#_test_mysql">Test MySQL</a></li>
+</ul>
+</li>
+<li><a href="#_test_a_virtual_host">Test a Virtual Host</a></li>
+<li><a href="#_install_wordpress">Install WordPress</a>
+<ul class="sectlevel2">
+<li><a href="#_configure_a_virtual_host">Configure a Virtual Host</a></li>
+<li><a href="#_add_a_database">Add a database</a></li>
+<li><a href="#_configure_wordpress">Configure WordPress</a></li>
+</ul>
+</li>
+<li><a href="#_additional_references">Additional References</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>WordPress on a LAMP stack with Ubuntu</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_the_lamp_stack">Install the LAMP Stack</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This approach uses <em>tasksel</em>. <em>Tasksel</em> should only be used during initial setup of a server and not for ongoing maintenance and configuration. It installs all of the software and configurations required for a specific task.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt-get update</code></p>
+</li>
+<li>
+<p><code>sudo apt-get install tasksel</code></p>
+</li>
+<li>
+<p><code>sudo tasksel</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Check <em>LAMP server</em></p>
+</li>
+<li>
+<p>Enter new MySQL root password when asked</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test_the_lamp">Test the LAMP</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_test_apache">Test Apache</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Browse to your ip_address or hostname (<em>servername</em>) to view the default Apache page</p>
+</li>
+<li>
+<p>Enable mod_rewite (needed for WordPress)</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo a2enmod rewrite</code></p>
+</li>
+<li>
+<p><code>service apache2 restart</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_test_php">Test PHP</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /var/www/html/phpinfo.php</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add <code>&lt;?php phpinfo(); ?&gt;</code></p>
+</li>
+<li>
+<p>Save</p>
+</li>
+<li>
+<p>Browse to <em>servername</em>/phpinfo.php</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Once it is working, remove the phpinfo.php file for security disclosure reasons.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo rm /var/www/html/phpinfo.php</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_test_mysql">Test MySQL</h3>
+<div class="paragraph">
+<p>An easy way to test MySQL is to install <a href="https://www.phpmyadmin.net/">phpMyAdmin</a>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt-get install phpmyadmin php-gettext</code></p>
+</li>
+<li>
+<p>Browse to <em>servername</em>/phpmyadmin</p>
+</li>
+<li>
+<p>Login with <em>root</em> and the password you set earlier</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_test_a_virtual_host">Test a Virtual Host</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I&#8217;ll demonstrated this using a simple configuration for the bd-designs.com domain.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Review the default config, <code>less /etc/apache2/sites-available/000-default.conf</code></p>
+</li>
+<li>
+<p><code>sudo nano /etc/apache2/sites-available/bd-designs.com.conf</code></p>
+</li>
+<li>
+<p>Add the following to this new configuration</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code># start BD-DESIGNS.COM
+&lt;VirtualHost *:80&gt;
+    ServerName bd-designs.com
+    ServerAlias *.bd-designs.com
+    ServerAdmin admin@bd-designs.com
+
+    DocumentRoot /var/www/bd-designs.com/html
+    &lt;Directory /&gt;
+        Options FollowSymLinks
+        AllowOverride None
+    &lt;/Directory&gt;
+    &lt;Directory /var/www/bd-designs.com/html/&gt;
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    &lt;/Directory&gt;
+
+&lt;/VirtualHost&gt;
+# end BD-DESIGNS.COM</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Note the DocumentRoot is <strong>/var/www/bd-designs.com/html</strong>. This is where all the website files will go.</p>
+</li>
+<li>
+<p>Create a web viewable file</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /var/www/bd-designs.com/html/index.html</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Welcome to BD Designs!&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Success! This is a test page of the bd-designs.com virtual host settings.&lt;/h1&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Change file permissions of web accessible files. (Caution: this disables all executable files)</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo chmod -R 644 /var/www</code></p>
+</li>
+<li>
+<p><code>sudo chmod -R ug=rwX,o=rX /var/www</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Enable the virtual host, <code>sudo a2ensite bd-designs.com.conf</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>to disable a site use `sudo a2dissite bd-designs.com.conf `</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>service apache2 reload</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Next, is to point the domain at the server&#8217;s IP address. This is not covered in this document but there are two methods.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Use the hosts file</p>
+<div class="ulist">
+<ul>
+<li>
+<p><em>/etc/hosts</em> on Linux</p>
+</li>
+<li>
+<p><em>C:\\Windows\\System32\\drivers\\etc\\hosts</em> on Windows</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Set your domain using DNS. This could be your domain registrar or a third party like DNS Made Easy.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_wordpress">Install WordPress</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](<a href="https://wordpress.org/download/" class="bare">https://wordpress.org/download/</a>) and enable automatic updates. This example uses the tosamakers.com domain.</p>
+</div>
+<div class="paragraph">
+<p><strong>Set your DNS or hosts file to point your domain to the server</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo mkdir /var/www/tosamakers.com</code></p>
+</li>
+<li>
+<p><code>sudo cd /var/www/tosamakers.com</code></p>
+</li>
+<li>
+<p><code>sudo wget "https://wordpress.org/latest.tar.gz"</code></p>
+</li>
+<li>
+<p><code>sudo tar -xzvf latest.tar.gz</code></p>
+</li>
+<li>
+<p>Use WordPress as the root for tosamakers.com</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo mv wordpress html</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>WordPress itself will need to modify files for configuration and updates</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo chown -R www-data:www-data html</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_configure_a_virtual_host">Configure a Virtual Host</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Similar to the previous virtual host except that now we must permit mod_rewrite and .htaccess files.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nano /etc/apache2/sites-available/tosamakers.com.conf</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Add the following to this new configuration</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code># start TOSAMAKERS.COM
+&lt;VirtualHost *:80&gt;
+    ServerName tosamakers.com
+    ServerAlias *.tosamakers.com
+    ServerAdmin admin@tosamakers.com
+
+    DocumentRoot /var/www/tosamakers.com/html
+    &lt;Directory /var/www/tosamakers.com/html&gt;
+            Options -Indexes +FollowSymLinks +MultiViews
+            AllowOverride All
+            Order allow,deny
+            allow from all
+    &lt;/Directory&gt;
+&lt;/VirtualHost&gt;
+# end TOSAMAKERS.COM</code></pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo a2ensite tosamakers.com.conf</code></p>
+</li>
+<li>
+<p><code>sudo service apache2 restart</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_add_a_database">Add a database</h3>
+<div class="paragraph">
+<p>Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named <em>tosamakers</em>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Login to phpMyAdmin</p>
+</li>
+<li>
+<p>Click the <em>User Accounts</em> tab</p>
+</li>
+<li>
+<p>Add a new user</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Make certain to check the box <em>Create database with same name and grant all privileges</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configure_wordpress">Configure WordPress</h3>
+<div class="paragraph">
+<p>The configuration is now completed mostly via browser.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Browse to <em>servername</em></p>
+</li>
+<li>
+<p>Follow the prompts and enter the required information</p>
+</li>
+<li>
+<p>Login and browse your new WordPress site</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_additional_references">Additional References</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>[Apache2](<a href="https://help.ubuntu.com/16.04/serverguide/httpd.html" class="bare">https://help.ubuntu.com/16.04/serverguide/httpd.html</a>)</p>
+</li>
+<li>
+<p>[MySQL](<a href="https://help.ubuntu.com/16.04/serverguide/mysql.html" class="bare">https://help.ubuntu.com/16.04/serverguide/mysql.html</a>)</p>
+</li>
+<li>
+<p>[PHP](<a href="https://secure.php.net/" class="bare">https://secure.php.net/</a>)</p>
+</li>
+<li>
+<p>[phpMyAdmin](<a href="https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html" class="bare">https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html</a>)</p>
+</li>
+<li>
+<p>[WordPress](<a href="https://codex.wordpress.org/Installing_WordPress" class="bare">https://codex.wordpress.org/Installing_WordPress</a>)</p>
+</li>
+<li>
+<p>[DigitalOcean mod_rewrite](<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04</a>)</p>
+</li>
+<li>
+<p>[DigitalOcean Apache2](<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts</a>)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2016-12-19 18:09:22 Central Standard Time
+</div>
+</div>
+</body>
+</html>
