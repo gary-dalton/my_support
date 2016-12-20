@@ -1,0 +1,192 @@
+= Install WordPress
+Gary Dalton <https://github.com/gary-dalton>
+:description: WordPress on a LAMP stack with Ubuntu
+:revnumber: 1.0
+:revdate: 20 July 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets install_wordpress.adoc
+:keywords: lamp, ubuntu, apache, mysql, php, phpmyadmin, wordpress, guide, install
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== Install the LAMP Stack
+
+This approach uses _tasksel_. _Tasksel_ should only be used during initial setup of a server and not for ongoing maintenance and configuration. It installs all of the software and configurations required for a specific task.
+
+* `sudo apt-get update`
+* `sudo apt-get install tasksel`
+* `sudo tasksel`
+** Check _LAMP server_
+** Enter new MySQL root password when asked
+
+== Test the LAMP
+
+=== Test Apache
+
+* Browse to your ip_address or hostname (_servername_) to view the default Apache page
+* Enable mod_rewite (needed for WordPress)
+** `sudo a2enmod rewrite`
+** `service apache2 restart`
+
+
+=== Test PHP
+
+* `sudo nano /var/www/html/phpinfo.php`
+** Add `<?php phpinfo(); ?>`
+** Save
+** Browse to _servername_/phpinfo.php
+* Once it is working, remove the phpinfo.php file for security disclosure reasons.
+** `sudo rm /var/www/html/phpinfo.php`
+
+=== Test MySQL
+
+An easy way to test MySQL is to install https://www.phpmyadmin.net/[phpMyAdmin].
+
+* `sudo apt-get install phpmyadmin php-gettext`
+* Browse to _servername_/phpmyadmin
+* Login with _root_ and the password you set earlier
+
+
+== Test a Virtual Host
+
+A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I'll demonstrated this using a simple configuration for the bd-designs.com domain.
+
+* Review the default config, `less /etc/apache2/sites-available/000-default.conf`
+* `sudo nano /etc/apache2/sites-available/bd-designs.com.conf`
+* Add the following to this new configuration
+
+```
+# start BD-DESIGNS.COM
+<VirtualHost *:80>
+    ServerName bd-designs.com
+    ServerAlias *.bd-designs.com
+    ServerAdmin admin@bd-designs.com
+
+    DocumentRoot /var/www/bd-designs.com/html
+    <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+    <Directory /var/www/bd-designs.com/html/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        allow from all
+    </Directory>
+
+</VirtualHost>
+# end BD-DESIGNS.COM
+```
+
+* Note the DocumentRoot is **/var/www/bd-designs.com/html**. This is where all the website files will go.
+* Create a web viewable file
+** `sudo nano /var/www/bd-designs.com/html/index.html`
+
+```
+<html>
+  <head>
+    <title>Welcome to BD Designs!</title>
+  </head>
+  <body>
+    <h1>Success! This is a test page of the bd-designs.com virtual host settings.</h1>
+  </body>
+</html>
+```
+
+* Change file permissions of web accessible files. (Caution: this disables all executable files)
+** `sudo chmod -R 644 /var/www`
+** `sudo chmod -R ug=rwX,o=rX /var/www`
+* Enable the virtual host, `sudo a2ensite bd-designs.com.conf`
+** to disable a site use `sudo a2dissite bd-designs.com.conf `
+* `service apache2 reload`
+
+Next, is to point the domain at the server's IP address. This is not covered in this document but there are two methods.
+
+1. Use the hosts file
+** _/etc/hosts_ on Linux
+** _C:\\Windows\\System32\\drivers\\etc\\hosts_ on Windows
+2. Set your domain using DNS. This could be your domain registrar or a third party like DNS Made Easy.
+
+== Install WordPress
+
+I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](https://wordpress.org/download/) and enable automatic updates. This example uses the tosamakers.com domain.
+
+**Set your DNS or hosts file to point your domain to the server**
+
+* `sudo mkdir /var/www/tosamakers.com`
+* `sudo cd /var/www/tosamakers.com`
+* `sudo wget "https://wordpress.org/latest.tar.gz"`
+* `sudo tar -xzvf latest.tar.gz`
+* Use WordPress as the root for tosamakers.com
+** `sudo mv wordpress html`
+* WordPress itself will need to modify files for configuration and updates
+** `sudo chown -R www-data:www-data html`
+
+=== Configure a Virtual Host
+
+* Similar to the previous virtual host except that now we must permit mod_rewrite and .htaccess files.
+** `sudo nano /etc/apache2/sites-available/tosamakers.com.conf`
+* Add the following to this new configuration
+
+```
+# start TOSAMAKERS.COM
+<VirtualHost *:80>
+    ServerName tosamakers.com
+    ServerAlias *.tosamakers.com
+    ServerAdmin admin@tosamakers.com
+
+    DocumentRoot /var/www/tosamakers.com/html
+    <Directory /var/www/tosamakers.com/html>
+            Options -Indexes +FollowSymLinks +MultiViews
+            AllowOverride All
+            Order allow,deny
+            allow from all
+    </Directory>
+</VirtualHost>
+# end TOSAMAKERS.COM
+```
+* `sudo a2ensite tosamakers.com.conf`
+* `sudo service apache2 restart`
+
+=== Add a database
+
+Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named _tosamakers_.
+
+* Login to phpMyAdmin
+* Click the _User Accounts_ tab
+* Add a new user
+** Make certain to check the box _Create database with same name and grant all privileges_
+
+=== Configure WordPress
+
+The configuration is now completed mostly via browser.
+
+* Browse to _servername_
+* Follow the prompts and enter the required information
+* Login and browse your new WordPress site
+
+
+== Additional References
+
+* [Apache2](https://help.ubuntu.com/16.04/serverguide/httpd.html)
+* [MySQL](https://help.ubuntu.com/16.04/serverguide/mysql.html)
+* [PHP](https://secure.php.net/)
+* [phpMyAdmin](https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html)
+* [WordPress](https://codex.wordpress.org/Installing_WordPress)
+* [DigitalOcean mod_rewrite](https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04)
+* [DigitalOcean Apache2](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts)

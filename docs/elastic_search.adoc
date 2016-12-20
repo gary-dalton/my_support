@@ -1,0 +1,208 @@
+= Elasticsearch
+Gary Dalton <https://github.com/gary-dalton>
+:description: Installation of the Elastic Search ELK stack on an Ubuntu 16.04 server.
+:revnumber: 1.0
+:revdate: 6 December 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets elastic_search.adoc
+:keywords:
+
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+== Requirements
+
+A working Ubuntu 16.04 server.
+
+== Install Oracle's Java JDK
+
+NOTE: Mostly follows https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04
+
+* `sudo apt-get install default-jdk`
+* `sudo apt install software-properties-common`
+* `sudo add-apt-repository ppa:webupd8team/java`
+* `sudo apt-get update`
+* `sudo apt-get install oracle-java8-installer`
+
+Set as default java
+
+* `sudo update-alternatives --config java`
+** For my system the path is _/usr/lib/jvm/java-8-oracle/jre/bin/java_
+* `sudo nano /etc/environment`
+** Add _JAVA_HOME="path"_ where path is the system path you just set.
+** Save and exit nano
+* `source /etc/environment`
+* Verify with `echo $JAVA_HOME`
+
+== Install Elasticsearch
+
+NOTE: Mostly follows https://www.elastic.co/guide/en/elasticsearch/reference/5.0/deb.html
+
+* Signing key, `wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -`
+* `sudo apt-get install apt-transport-https`
+* `echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list`
+* `sudo apt-get update`
+* `sudo apt-get install elasticsearch`
+
+=== Ensure Elasticsearch starts on boot.
+
+* `sudo /bin/systemctl daemon-reload`
+* `sudo update-rc.d elasticsearch defaults 95 10`
+* `sudo /bin/systemctl enable elasticsearch.service`
+* Start `sudo service elasticsearch start`
+* Stop `sudo service elasticsearch stop`
+
+=== Verify Elasticsearch is running.
+
+* `sudo service elasticsearch status`
+* check logfile `sudo cat /var/log/elasticsearch/elasticsearch.log`
+* Check with HTTP request `curl -XGET 'localhost:9200/?pretty'`
+** No curl? Install it `sudo apt install curl`
+
+
+=== Basic Elasticsearch configuration
+
+NOTE: Mostly follows https://www.digitalocean.com/community/tutorials/how-to-install-and-configure-elasticsearch-on-ubuntu-16-04 and https://www.elastic.co/guide/en/elasticsearch/reference/5.0/important-settings.html
+
+* `sudo nano /etc/elasticsearch/elasticsearch.yml`
+** Set the _cluster.name_ and _node.name_
+** Set _path.data: /var/lib/elasticsearch_
+** Set _xpack.security.enabled: false_
+** Save and exit
+* Reload, `sudo service elasticsearch restart`
+
+== Install X-Pack for Elasticsearch
+
+NOTE: Follows https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html
+
+* `sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install x-pack`
+* `sudo service elasticsearch restart`
+
+== Install Kibana
+
+NOTE: Mostly follows https://www.elastic.co/guide/en/kibana/5.0/deb.html and https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04
+
+* `sudo apt install kibana`
+* `sudo update-rc.d kibana defaults 95 10`
+* `sudo /bin/systemctl enable kibana.service`
+
+=== Configure
+
+* `sudo nano /etc/kibana/kibana.yml`
+** Set _server.host: "localhost"_
+** Set _xpack.security.enabled: false_
+
+=== NGinx Reverse Proxy
+
+NOTE: Since Kibana listens on localhost, a reverse proxy is needed to allow external access to. Nginx has great reverse proxy capabilities.
+
+* `sudo apt-get install nginx apache2-utils`
+* `sudo htpasswd -c /etc/nginx/htpasswd.users kibanaadmin`
+** Use a different user than  _kibanaadmin_
+** Enter your unique password
+* `sudo mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default-orig`
+
+Configure Nginx to direct HTTP requests to the Kibana, listening on localhost:5601. Nginx will use the htpasswd.users file and require basic authentication.
+
+* `sudo nano /etc/nginx/sites-available/default`
+** Enter the following, save, and exit
+
+----
+server {
+    listen 80;
+    server_name your_domain.com;
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+----
+
+* `sudo service nginx restart`
+
+You may verify that Kibana is working with Elasticsearch by visiting your_domain.com. Nginx should direct you to the Kibana management page, requesting that you configure an index pattern. We will return to setting an index pattern later. If Kibana complains that it cannot connect to Elasticsearch, verify that elasticsearch is running and ready.
+
+== Install X-Pack for Kibana
+
+NOTE: Follows https://www.elastic.co/guide/en/x-pack/5.0/installing-xpack.html
+
+* `sudo /usr/share/kibana/bin/kibana-plugin install x-pack`
+* `sudo service kibana restart`
+
+== Install Logstash
+
+NOTE: Follows https://www.elastic.co/guide/en/logstash/5.0/installing-logstash.html
+
+* For reasons related to $JAVA_HOME, I was unable to install logstash using sudo.
+** `sudo -i`
+** `apt install logstash`
+** `exit`
+
+Test it
+
+* I also had some problems locating the  /etc/logstash/logstash.yml file
+* `/usr/share/logstash/bin/logstash --path.settings /etc/logstash -e 'input { stdin { } } output { stdout {} }'`
+* `hello world`
+* Should see reply similar to _2016-12-01T02:12:53.612Z localhost hello world_
+* Exit with _ CTRL-D_
+
+== Beats
+
+Logstash on the ELK server must be configured to accept data from the various Beats.
+
+=== Generate SSL Certificates
+
+* `sudo mkdir -p /etc/pki/tls/certs`
+* `sudo mkdir /etc/pki/tls/private`
+* `cd /etc/pki/tls`
+* In the following command, replace _elk.server.name_ with the fully qualified domain name of your elk server.
+** `sudo openssl req -subj '/CN=elk.server.name/' -x509 -days 3650 -batch -nodes -newkey rsa:2048 -keyout private/logstash-forwarder.key -out certs/logstash-forwarder.crt`
+
+=== Configure Logstash
+
+Verify that the Beats input plugin is available to Logstash, `/usr/share/logstash/bin/logstash-plugin list`. Look for _logstash-input-beats_.
+
+
+
+
+https://www.digitalocean.com/community/tutorials/how-to-install-elasticsearch-logstash-and-kibana-elk-stack-on-ubuntu-14-04
+
+
+== OTHER
+
+I have installed 2 pdf to other converters on my windows.
+
+* Tika, https://tika.apache.org/1.14/gettingstarted.html
+** java -jar c:\bin\tika-app.jar -t test2.pdf
+* pdf2htmlEX, https://github.com/coolwanglu/pdf2htmlEX
+**
+
+Another possibility is tabula, http://tabula.technology/
+
+* https://stackoverflow.com/questions/29868541/pdf-data-and-table-scraping-to-excel
+* http://wauwatosacitywi.iqm2.com/Citizens/default.aspx
+
+
+
+== Working with Python 2.7
+
+* `sudo apt-get install python`
+* `sudo apt-get install python-elasticsearch`

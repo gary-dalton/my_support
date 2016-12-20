@@ -1,0 +1,272 @@
+= Let's Encrypt
+Gary Dalton <https://github.com/gary-dalton>
+:description: Using Let's Encrypt as a free, automated, and open Certificate Authority on Ubuntu server. See https://letsencrypt.org/
+:revnumber: 1.0
+:revdate: 6 December 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets letsencrypt.adoc
+:keywords: https, letsencrypt, website, security, apache, nginx, ssl
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+== Requirements
+
+A working Ubuntu 16.04 server running Nginx web server. Determine your Ubuntu version with `lsb_release -a`.
+
+== Resources
+
+* https://letsencrypt.org/
+* https://certbot.eff.org/
+
+
+== Install Certbot
+
+Since Certbot is packaged for your system, all you'll need to do is apt-get the following packages.
+
+* `sudo apt update`
+* `sudo apt upgrade`
+* `sudo apt-get install letsencrypt`
+
+
+== Nginx
+
+Certbot can be used for Apache or Nginx site. This is not a guide on Nginx, so only the minimum requirements for a very basic site are mentioned here.
+
+Let's say we have two domains, example.com and another.com. Their static files are served from _/var/www/example_ and _/var/www/another_. View their example configuration files below.
+
+./etc/nginx/sites-available/example
+----
+# Virtual Host configuration for example.com
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name example.com;
+    root /var/www/example;
+    index index.html index.htm;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}
+----
+
+./etc/nginx/sites-available/another
+----
+# Virtual Host configuration for another.com
+server {
+    listen 80;
+    listen [::]:80;
+    server_name another.com;
+    root /var/www/another;
+    index index.html index.htm;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    location = /favicon.ico {
+        log_not_found off;
+        access_log off;
+    }
+    location = /robots.txt {
+        allow all;
+        log_not_found off;
+        access_log off;
+    }
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
+        expires max;
+        log_not_found off;
+    }
+}
+----
+
+Enable the sites and reload Nginx.
+
+* `sudo ln -s /etc/nginx/sites-available/example /etc/nginx/sites-enabled/`
+* `sudo ln -s /etc/nginx/sites-available/another /etc/nginx/sites-enabled/`
+* `sudo service nginx reload`
+
+TIP: Disable a site by deleting the file in _/etc/nginx/sites-enabled/_
+
+=== Get the certificate
+
+For Nginx on Ubuntu 16.04, we can only get the certificate but cannot fully install it. The following will get a certificate that is valid on the following domains: gruffgoat.com, www.gruffgoat.com, m.gruffgoat.com, werkspc.com, m.werkspc.com, and elk.werkspc.com.
+
+`letsencrypt certonly --webroot -w /var/www/example -d example.com -d www.example.com -d m.example.com -w /var/www/another -d another.com -d m.another.com -d elk.another.com`
+
+Upon success, you receive a message similar to:
+
+    Congratulations! Your certificate and chain have been saved at /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will
+    expire on 2017-01-01. To obtain a new version of the certificate in
+    the future, simply run Let's Encrypt again.
+
+=== Update configurations for SSL
+
+Now Nginx must be told to use the new certificates. Just add a few lines to both configuration files.
+
+./etc/nginx/sites-available/example
+----
+# Also /etc/nginx/sites-available/another
+# Add these lines to the current configuration within server
+
+    listen 443 ssl;
+    listen [::]:443;
+
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+    ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+----
+
+* `sudo service nginx reload`
+
+
+== Apache Systems
+
+Even though Certbot has a good plugin for Apache, I prefer to perform much of the setup manually.
+
+=== Get Certificate
+
+Get a certificate that is valid on the following domains: tosamakers.com, www.tosamakers.com, tosaeasttowne.org, www.tosaeasttowne.org, bd-designs.com, and www.bd-designs.com.
+
+`letsencrypt certonly --webroot -w /var/www/tosamakers.com/html -d tosamakers.com -d www.tosamakers.com -w /var/www/tosaeasttowne.org/html -d tosaeasttowne.org -d www.tosaeasttowne.org -w /var/www/bd-designs.com/html -d bd-designs.com -d www.bd-designs.com`
+
+Upon success, you receive a message similar to:
+
+    Congratulations! Your certificate and chain have been saved at /etc/letsencrypt/live/example.com/fullchain.pem. Your cert will
+    expire on 2017-01-01. To obtain a new version of the certificate in
+    the future, simply run Let's Encrypt again.
+
+IMPORTANT: Make certain to note the location of the fullchain.pem.
+
+=== Configure for SSL
+
+Each domain that uses a certificate must be configured for it. Create a new SSL configuration file for each domain. The example below is the SSL configuration file for tosamakers.com. Note that the SSLCertificateFile and SSLCertificateKeyFile lines point to the location of the fullchain.pem.
+
+./etc/apache2/sites-available/tosamakers.com-ssl.conf
+----
+# start TOSAMAKERS.COM
+<IfModule mod_ssl.c>
+<VirtualHost *:443>
+  ServerName tosamakers.com
+  ServerAlias *.tosamakers.com
+
+  DocumentRoot /var/www/tosamakers.com/html
+  <Directory /var/www/tosamakers.com/html>
+    Options -Indexes +FollowSymLinks +MultiViews
+    AllowOverride All
+    Order allow,deny
+    allow from all
+  </Directory>
+SSLCertificateFile /etc/letsencrypt/live/tosaeasttowne.org/fullchain.pem
+SSLCertificateKeyFile /etc/letsencrypt/live/tosaeasttowne.org/privkey.pem
+Include /etc/letsencrypt/options-ssl-apache.conf
+</VirtualHost>
+</IfModule>
+# end TOSAMAKERS.COM
+----
+
+This configuration also has the line _Include /etc/letsencrypt/options-ssl-apache.conf_. The Certbot Apache plugin creates and links to this file. Let's follow this practice as it makes the configurations more uniform and easier to read. The contents of this file are shown below.
+
+./etc/letsencrypt/options-ssl-apache.conf
+----
+# Baseline setting to Include for SSL sites
+
+SSLEngine on
+
+# Intermediate configuration, tweak to your needs
+SSLProtocol             all -SSLv2 -SSLv3
+SSLCipherSuite          ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+SSLHonorCipherOrder     on
+SSLCompression          off
+
+SSLOptions +StrictRequire
+
+# Add vhost name to log entries:
+LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"" vhost_combined
+LogFormat "%v %h %l %u %t \"%r\" %>s %b" vhost_common
+
+#CustomLog /var/log/apache2/access.log vhost_combined
+#LogLevel warn
+#ErrorLog /var/log/apache2/error.log
+
+# Always ensure Cookies have "Secure" set (JAH 2012/1)
+#Header edit Set-Cookie (?i)^(.*)(;\s*secure)??((\s*;)?(.*)) "$1; Secure$3$4"
+----
+
+=== Enable the Sites
+
+The sites are available, now lets enable them.
+
+* `sudo a2ensite tosamakers.com-ssl example.com-ssl`
+* Sites may be disabled with `sudo a2dissite`
+
+=== Test and Reload the Configurations
+
+Before reloading the configurations or restarting Apache, it is wise to check the configuration. Typos are easy to make and downtime is expensive.
+
+* Test with `sudo apachectl -t`
+* Reload with `sudo service apache2 reload`
+* Or, restart with `sudo service apache2 restart`
+
+=== Renewal on Apache System
+
+* `sudo letsencrypt renew --dry-run --agree-tos`
+* MORE TO COME
+
+
+== Using certbot-auto
+
+Certbot-auto is for those systems which do not have a certbot package. The command syntax for _certbot-auto_ is the same as it is for _letsencrypt_.
+
+=== Renewal
+
+* Dry run, `sudo ./certbot-auto renew --dry-run`
+* Assuming success, `sudo ./certbot-auto renew`
+
+----
+new certificate deployed with reload of apache server; fullchain is
+/etc/letsencrypt/live/secure.npexchange.org/fullchain.pem
+----
+
+
+<VirtualHost *:80>
+        ServerName
+        ServerAdmin gary@gruffgoat.com
+
+        # ---- Configure WSGI Listener(s) ----
+        # This assumes you installed to /var/www and strictly followed the
+        # installation instructions. Modify as needed.
+        #
+        # You may also need to modify the twenty47.wgsi file
+
+        WSGIDaemonProcess  twenty47 user=www-data group=www-data threads=5
+        WSGIScriptAlias / /var/www/Twenty47/twenty47.wsgi
+
+        <Directory /var/www/Twenty47/twenty47>
+                WSGIProcessGroup twenty47
+                WSGIApplicationGroup %{GLOBAL}
+                Order deny,allow
+                Allow from all
+        </Directory>
+
+</VirtualHost>
+
+
+== Conclusion
+
+The Let's Encrypt certificate expires in 90 days and there are some methods available to automatically renew the certificate. Based on some additional configuration changes I make on some of my servers, this does not always work and I just make certain to use a hard reminder system.

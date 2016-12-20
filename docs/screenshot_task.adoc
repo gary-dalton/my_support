@@ -1,0 +1,124 @@
+= Screenshot Task
+Gary Dalton <https://github.com/gary-dalton>
+:description: Use a Powershell script to take and save screenshots in the background. The script is called via the Windows Task Scheduler.
+:revnumber: 1.0
+:revdate: 14 December 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets screenshot_task.adoc
+:keywords: powershell, screenshot, tasks, task scheduler, task manager, windows-10, background
+
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+IMPORTANT: This example uses Windows 10, so change your targets as appropriate.
+
+== Screenshot Function and Script
+
+NOTE: Mostly from https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell
+
+Create a new script named _screenshot.ps1_. Insert the following and save it. Change the filename path to match your needs.
+
+.screenshot.ps1
+----
+Add-Type -AssemblyName System.Windows.Forms
+[Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+function screenshot([Drawing.Rectangle]$bounds, $path) {
+   $bmp = New-Object Drawing.Bitmap $bounds.width, $bounds.height
+   $graphics = [Drawing.Graphics]::FromImage($bmp)
+
+   $graphics.CopyFromScreen($bounds.Location, [Drawing.Point]::Empty, $bounds.size)
+
+   $bmp.Save($path)
+
+   $graphics.Dispose()
+   $bmp.Dispose()
+}
+
+While($True){
+
+    $width = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Width
+    $height = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds.Height
+    $bounds = [Drawing.Rectangle]::FromLTRB(0, 0, $width, $height)
+
+    $timestamp = get-date -Format ddMMyhhmmss
+    $filename = "C:\bin\screenshot" + $timestamp + ".jpg"
+
+    screenshot $bounds $filename
+
+    $sleeptime = 900
+    Start-Sleep
+}
+----
+
+A few items to change to match your environment and needs are:
+
+* $filename, change to _C:\bin\screenshot_ to your chosen path
+* $sleeptime, change to number of seconds between screenshots
+
+
+== Sign your Script
+
+TIP: See link:self-sign_powershell.html[]
+
+* Start Powershell as a user
+* `$cert = @(Get-ChildItem cert:\CurrentUser\My -codesigning)[0]`
+* `Set-AuthenticodeSignature screenshot.ps1 $cert`
+
+
+== Test Run
+
+* For testing, I set `$sleeptime = 5`
+* Run command, using _WindowsKey + r_
+* `powershell -windowstyle hidden \bin\screenshot.ps1`
+** Substitute _\bin\screenshot.ps1_ with your path
+* Verify that screenshots are saved to your chosen $filename
+* Kill the powershell script using Task Manager
+** Task Manager shortcut is _Ctrl+Shift+Esc_
+** In the _Processes_ tab under the _Background processes_ select _Windows Powershell_
+** Click _End task_
+
+== Task Scheduler
+
+=== Open
+
+* Launch Task Scheduler
+** Search via _WindowsKey + s_
+** Start typing _task_, usually enough
+** Click _Task Scheduler_
+
+=== Create Task
+
+* Click _Create Task_
+* On the _General_ tab, give the task a name
+* On the _Triggers_ tab, click _New_
+** Begin the task _At log on_ for _Any user_
+** Click _Ok_
+* On the _Actions_ tab, click _New_
+** _Action_ is _Start a program_
+** _Program/script_ is _powershell_
+** _Add arguments_ is _-windowstyle hidden \bin\screenshot.ps1_
+** Click _Ok_
+* Click _Ok_
+
+The task has been added and will run at the next and every log on. Review the other settings available in Task Scheduler to make certain the task runs as you require it. The Screenshot script does not need to be run multiple times as it  continues to run in the background while it sleeps.
+
+
+== Resources
+
+* https://stackoverflow.com/questions/2969321/how-can-i-do-a-screen-capture-in-windows-powershell
+* https://stackoverflow.com/questions/7967699/get-screen-resolution-using-wmi-powershell-in-windows-7
+* https://gallery.technet.microsoft.com/scriptcenter/eeff544a-f690-4f6b-a586-11eea6fc5eb8

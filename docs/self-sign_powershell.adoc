@@ -1,0 +1,136 @@
+= Self-Sign a Powershell Script
+Gary Dalton <https://github.com/gary-dalton>
+:description: Self-signing your Windows Powershell scripts allows you to run your scripts without fully disabling security. Disabling security would permit malicious scripts to run.
+:revnumber: 1.0
+:revdate: 11 December 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: coderay
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets self-sign_powershell.adoc
+:keywords: powershell, windows, code, certificate, signing, makecert
+
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+IMPORTANT: This example uses Windows 10, so change your targets as appropriate.
+
+== Install the Windows SDK
+
+Download the Windows 10 SDK from https://developer.microsoft.com/en-us/windows/downloads/windows-10-sdk
+
+Install the SDK by running the downloaded executable.
+
+== Make makecert available
+
+=== Find
+
+In my version of Windows, make cert is found under the folder, _C:\Program Files (x86)\Windows Kits\10\bin_. Explore to find the exact location of makecert.
+
+=== Copy
+
+I choose to copy the makecert to my C:\bin folder (already in my PATH) but you may choose to add the folder to your path instead.
+
+* In Powershell, `copy "C:\Program Files (x86)\Windows Kits\10\bin\x64\makecert.exe" C:\bin`
+
+=== Add to PATH
+
+Alternatively, you may add the folder to your path.
+
+* `Windows key - r`
+* Enter _SystemPropertiesAdvanced_
+* Click _Environment Variables_
+* Select _PATH_
+* Click _Edit_
+* Add _C:\Program Files (x86)\Windows Kits\10\bin\x64_ as a new variable in your path
+
+== Using makecert
+
+* Start Powershell as an Administrator
+
+=== Local Certificate Authority
+
+* `makecert -n "CN=PowerShell Local Certificate Root" -a sha1 -eku 1.3.6.1.5.5.7.3.3 -r -sv root.pvk root.cer -ss Root -sr localMachine`
+** Enter passwords
+** Operation should succeed
+* Verify via `CertMgr`
+** Navigate to _Trusted Root Certificate Authorities_ >> _Certificates_
+** Find the certificate named, _PowerShell Local Certificate Root_
+
+=== Generate a Personal Certificate
+
+* `makecert -pe -n "CN=Gary PowerShell Cert" -ss MY -a sha1 -eku 1.3.6.1.5.5.7.3.3 -iv root.pvk -ic root.cer`
+** Enter password
+** Operation should succeed
+* Verify via `CertMgr`
+** Navigate to _Personal_ >> _Certificates_
+** Find the certificate named, _Gary PowerShell Cert_
+* Verify your certificate is available, `get-childitem cert:\CurrentUser\my -codesigning`
+** You should see your certificate listed
+
+The certificate is now ready for use on the current system. See http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html for information on how to export it to other systems.
+
+
+== Change Powershell Execution Policy
+
+TIP: See http://go.microsoft.com/fwlink/?LinkID=135170
+
+* Show current execution policy, `Get-ExecutionPolicy -List`
+* Change execution policy to AllSigned with a CurrentUSer scope, `Set-ExecutionPolicy AllSigned -Scope CurrentUser`
+
+
+== Sign some code
+
+Have your freshly written script ready for signing. For demonstration, the script is named example.ps1.
+
+* Start Powershell as a user
+* `$cert = @(Get-ChildItem cert:\CurrentUser\My -codesigning)[0]`
+* `$file = "\bin\screenshot.ps1"`
+* `Set-AuthenticodeSignature $file $cert`
+
+The reply you receive should be similar to:
+
+----
+Directory: C:\path
+
+SignerCertificate        Status                  Path
+-----------------        ------                  ----
+34552NJNH568NJBH3256I    Valid                   example.ps1
+----
+
+=== Downloaded Scripts
+
+Downloaded scripts cannot be signed due to special metadata attached to the file. This may be viewed by opening a _cmd_ window and entering the command `dir /r` or `dir /r filename`. You will notice that some files may have a second entry similar to the following:
+
+----
+08/27/2015  12:51 PM    372,681 filename
+                             26 filename:Zone.Identifier:$DATA
+----
+
+
+== Resources
+
+* http://www.darkoperator.com/blog/2013/3/5/powershell-basics-execution-policy-part-1.html
+* https://community.spiceworks.com/how_to/122368-signing-a-powershell-script-with-a-self-signed-certificate
+* https://stackoverflow.com/questions/31772109/makecert-missing-from-windows-10-and-visual-studio-2015-install
+* http://woshub.com/how-to-create-self-signed-certificate-with-powershell/
+* https://knowledge.symantec.com/support/code-signing-support/index?page=content&id=SO9982&pmv=print&actp=PRINT&viewlocale=en_US
+* https://msdn.microsoft.com/en-us/library/aa388165(v=vs.85).aspx
+* https://msdn.microsoft.com/powershell/reference/5.1/Microsoft.PowerShell.Core/about/about_Execution_Policies
+* http://www.howtogeek.com/70012/what-causes-the-file-downloaded-from-the-internet-warning-and-how-can-i-easily-remove-it/
+* http://woshub.com/how-windows-determines-that-the-file-has-been-downloaded-from-the-internet/
+* https://technet.microsoft.com/en-us/sysinternals/bb545027.aspx
+* https://blogs.technet.microsoft.com/heyscriptingguy/2010/06/17/hey-scripting-guy-how-can-i-sign-windows-powershell-scripts-with-an-enterprise-windows-pki-part-2-of-2/
+* http://www.hanselman.com/blog/SigningPowerShellScripts.aspx
+* https://4sysops.com/archives/sign-your-powershell-scripts-to-increase-security/
