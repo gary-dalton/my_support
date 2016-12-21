@@ -181,11 +181,11 @@ The configuration is now completed mostly via browser.
 * Login and browse your new WordPress site
 
 
-== Maintain WordPress
+== Backup WordPress
 
 === Backup Files
 
-Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with a simple shell script. First, I will run through the manual process and then share the script.
+Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with script. First, I will run through the manual process and then share the script.
 
 ==== Assumptions:
 
@@ -323,7 +323,7 @@ Later, we will create a cron backup script that will run automatically.
 
 Here we perform many of the same tasks only for databases.
 
-==== Assumptions:
+==== Assumptions
 
 * WordPress sites are located in _/var/www_. This example uses the site _test_.
 * Database dumps are saved to _/var/local/dbdumps_. The example site uses _test_.
@@ -416,6 +416,65 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])
 
 ----
 
+
+== Upgrade WordPress
+
+Keeping up-to-date with the latest releases of WordPress and its various plugins and themes is important. WordPress is a very popular blogging platform with a history of vulnerabilities but also of quick patches. I have a tickler system that notifies me to check for updates every 3 weeks.
+
+IMPORTANT: Always back up your files and databases before performing a WordPress version upgrade.
+
+=== Via Admin Web Interface
+
+Using the web interface is the easiest way for many users to upgrade their WordPress sites. It does require admin access to the site and also proper file mode settings. After each update step, verify that the site still functions as it should.
+
+* Login to your site as an Admin user
+* Navigate to _Dashboard > Updates_
+* Select which plugins to upgrade (all?)
+* Click Update
+* Return to the WordPress updates page
+* Select which themes to upgrade (all?)
+* Click Update
+* Return to the WordPress updates page
+* Under the heading _An updated version of WordPress is available._ click _Update Now_
+* Review and address any update messages that have been generated
+
+
+=== Using WP-CLI
+
+WP-CLI, http://wp-cli.org/, is a set of command-line tools for managing WordPress installations. You can update plugins, configure multisite installs and much more, without using a web browser.
+
+TIP: Follow the installation instructions at https://wp-cli.org/docs/installing/
+
+NOTE: Running the sudo command with wp-cli will cause wp-cli to complain. Instead of sudo as the www-data user (which on my machines has no login privileges), I use sudo and then chown on all files back to www-data.
+
+==== Plugins
+
+* Return list of plugin updates available, `sudo wp plugin update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/`
+* Update all plugins, `sudo wp plugin update --allow-root --all --path=/var/www/tosamakers.com/html/`
+* Chown files back to www-data, `sudo chown -R www-data:www-data /var/www/tosamakers.com/html/`
+
+==== Themes
+
+* Return list of theme updates available, `sudo wp theme update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/`
+* Update all plugins, `sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/`
+* Chown files back to www-data, `sudo chown -R www-data:www-data /var/www/tosamakers.com/html/`
+
+==== Core
+
+* Check for core updates, `wp core check-update`
+* Update the core, `sudo wp core update --allow-root`
+* Update the database, `sudo wp core update-db --allow-root`
+* Chown files back to www-data, `sudo chown -R www-data:www-data /var/www/tosamakers.com/html/`
+
+
+=== Scripted Use of WP-CLI
+
+sudo chown -R www-data:www-data /var/www/tosamakers.com/html/
+
+
+
+
+
 == Additional References
 
 * [Apache2](https://help.ubuntu.com/16.04/serverguide/httpd.html)
@@ -425,3 +484,9 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])
 * [WordPress](https://codex.wordpress.org/Installing_WordPress)
 * [DigitalOcean mod_rewrite](https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04)
 * [DigitalOcean Apache2](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts)
+* https://bash.cyberciti.biz/guide/Main_Page
+* http://regexr.com/
+* http://www.regular-expressions.info/refcapture.html
+* https://docs.python.org/2.7/howto/regex.html
+* https://docs.python.org/2/library/subprocess.html
+* http://wp-cli.org/

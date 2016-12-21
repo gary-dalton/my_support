@@ -40,7 +40,7 @@
 <li><a href="#_configure_wordpress">Configure WordPress</a></li>
 </ul>
 </li>
-<li><a href="#_maintain_wordpress">Maintain WordPress</a>
+<li><a href="#_backup_wordpress">Backup WordPress</a>
 <ul class="sectlevel2">
 <li><a href="#_backup_files">Backup Files</a>
 <ul class="sectlevel3">
@@ -52,11 +52,24 @@
 </li>
 <li><a href="#_backup_databases">Backup Databases</a>
 <ul class="sectlevel3">
-<li><a href="#_assumptions_2">Assumptions:</a></li>
+<li><a href="#_assumptions_2">Assumptions</a></li>
 <li><a href="#_manual_first_run_2">Manual First Run</a></li>
 <li><a href="#_creating_a_scripted_run">Creating a Scripted Run</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a href="#_upgrade_wordpress">Upgrade WordPress</a>
+<ul class="sectlevel2">
+<li><a href="#_via_admin_web_interface">Via Admin Web Interface</a></li>
+<li><a href="#_using_wp_cli">Using WP-CLI</a>
+<ul class="sectlevel3">
+<li><a href="#_plugins">Plugins</a></li>
+<li><a href="#_themes">Themes</a></li>
+<li><a href="#_core">Core</a></li>
+</ul>
+</li>
+<li><a href="#_scripted_use_of_wp_cli">Scripted Use of WP-CLI</a></li>
 </ul>
 </li>
 <li><a href="#_additional_references">Additional References</a></li>
@@ -457,12 +470,12 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_maintain_wordpress">Maintain WordPress</h2>
+<h2 id="_backup_wordpress">Backup WordPress</h2>
 <div class="sectionbody">
 <div class="sect2">
 <h3 id="_backup_files">Backup Files</h3>
 <div class="paragraph">
-<p>Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with a simple shell script. First, I will run through the manual process and then share the script.</p>
+<p>Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with script. First, I will run through the manual process and then share the script.</p>
 </div>
 <div class="sect3">
 <h4 id="_assumptions">Assumptions:</h4>
@@ -724,7 +737,7 @@ done</code></pre>
 <p>Here we perform many of the same tasks only for databases.</p>
 </div>
 <div class="sect3">
-<h4 id="_assumptions_2">Assumptions:</h4>
+<h4 id="_assumptions_2">Assumptions</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -864,6 +877,153 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pr
 </div>
 </div>
 <div class="sect1">
+<h2 id="_upgrade_wordpress">Upgrade WordPress</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Keeping up-to-date with the latest releases of WordPress and its various plugins and themes is important. WordPress is a very popular blogging platform with a history of vulnerabilities but also of quick patches. I have a tickler system that notifies me to check for updates every 3 weeks.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Always back up your files and databases before performing a WordPress version upgrade.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect2">
+<h3 id="_via_admin_web_interface">Via Admin Web Interface</h3>
+<div class="paragraph">
+<p>Using the web interface is the easiest way for many users to upgrade their WordPress sites. It does require admin access to the site and also proper file mode settings. After each update step, verify that the site still functions as it should.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Login to your site as an Admin user</p>
+</li>
+<li>
+<p>Navigate to <em>Dashboard &gt; Updates</em></p>
+</li>
+<li>
+<p>Select which plugins to upgrade (all?)</p>
+</li>
+<li>
+<p>Click Update</p>
+</li>
+<li>
+<p>Return to the WordPress updates page</p>
+</li>
+<li>
+<p>Select which themes to upgrade (all?)</p>
+</li>
+<li>
+<p>Click Update</p>
+</li>
+<li>
+<p>Return to the WordPress updates page</p>
+</li>
+<li>
+<p>Under the heading <em>An updated version of WordPress is available.</em> click <em>Update Now</em></p>
+</li>
+<li>
+<p>Review and address any update messages that have been generated</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_wp_cli">Using WP-CLI</h3>
+<div class="paragraph">
+<p>WP-CLI, <a href="http://wp-cli.org/" class="bare">http://wp-cli.org/</a>, is a set of command-line tools for managing WordPress installations. You can update plugins, configure multisite installs and much more, without using a web browser.</p>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+Follow the installation instructions at <a href="https://wp-cli.org/docs/installing/" class="bare">https://wp-cli.org/docs/installing/</a>
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Running the sudo command with wp-cli will cause wp-cli to complain. Instead of sudo as the www-data user (which on my machines has no login privileges), I use sudo and then chown on all files back to www-data.
+</td>
+</tr>
+</table>
+</div>
+<div class="sect3">
+<h4 id="_plugins">Plugins</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Return list of plugin updates available, <code>sudo wp plugin update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/</code></p>
+</li>
+<li>
+<p>Update all plugins, <code>sudo wp plugin update --allow-root --all --path=/var/www/tosamakers.com/html/</code></p>
+</li>
+<li>
+<p>Chown files back to www-data, <code>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_themes">Themes</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Return list of theme updates available, <code>sudo wp theme update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/</code></p>
+</li>
+<li>
+<p>Update all plugins, <code>sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/</code></p>
+</li>
+<li>
+<p>Chown files back to www-data, <code>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_core">Core</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>Check for core updates, <code>wp core check-update</code></p>
+</li>
+<li>
+<p>Update the core, <code>sudo wp core update --allow-root</code></p>
+</li>
+<li>
+<p>Update the database, <code>sudo wp core update-db --allow-root</code></p>
+</li>
+<li>
+<p>Chown files back to www-data, <code>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_scripted_use_of_wp_cli">Scripted Use of WP-CLI</h3>
+<div class="paragraph">
+<p>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_additional_references">Additional References</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -889,6 +1049,24 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pr
 <li>
 <p>[DigitalOcean Apache2](<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts</a>)</p>
 </li>
+<li>
+<p><a href="https://bash.cyberciti.biz/guide/Main_Page" class="bare">https://bash.cyberciti.biz/guide/Main_Page</a></p>
+</li>
+<li>
+<p><a href="http://regexr.com/" class="bare">http://regexr.com/</a></p>
+</li>
+<li>
+<p><a href="http://www.regular-expressions.info/refcapture.html" class="bare">http://www.regular-expressions.info/refcapture.html</a></p>
+</li>
+<li>
+<p><a href="https://docs.python.org/2.7/howto/regex.html" class="bare">https://docs.python.org/2.7/howto/regex.html</a></p>
+</li>
+<li>
+<p><a href="https://docs.python.org/2/library/subprocess.html" class="bare">https://docs.python.org/2/library/subprocess.html</a></p>
+</li>
+<li>
+<p><a href="http://wp-cli.org/" class="bare">http://wp-cli.org/</a></p>
+</li>
 </ul>
 </div>
 </div>
@@ -897,7 +1075,7 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pr
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-21 13:29:26 Central Standard Time
+Last updated 2016-12-21 16:22:44 Central Standard Time
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
