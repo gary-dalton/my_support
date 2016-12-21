@@ -11,7 +11,7 @@ Gary Dalton <https://github.com/gary-dalton>
 :icons: font
 :toc: left
 :toclevels: 4
-:source-highlighter: coderay
+:source-highlighter: highlightjs
 :css: stylesheets/stylesheet.css
 :linkcss:
 :cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets index.adoc
@@ -26,7 +26,6 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 
 == Current
 
-* link:install_wordpress.html[Install WordPress]
 * link:letsencrypt.html[Let's Encrypt]
 * link:self-sign_powershell.html[Self-Sign a Powershell Script]
 * link:screenshot_task.html[Screenshot Task]
@@ -37,6 +36,7 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 == In Progress
 
 * link:elastic_search.html[Elasticsearch]
+* link:install_wordpress.html[Install and Maintain WordPress]
 
 
 == Obsolete

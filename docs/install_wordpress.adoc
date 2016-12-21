@@ -11,7 +11,7 @@ Gary Dalton <https://github.com/gary-dalton>
 :icons: font
 :toc: left
 :toclevels: 4
-:source-highlighter: coderay
+:source-highlighter: highlightjs
 :css: stylesheets/stylesheet.css
 :linkcss:
 :cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets install_wordpress.adoc
@@ -64,25 +64,25 @@ An easy way to test MySQL is to install https://www.phpmyadmin.net/[phpMyAdmin].
 
 == Test a Virtual Host
 
-A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I'll demonstrated this using a simple configuration for the bd-designs.com domain.
+A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I'll demonstrated this using a simple configuration for the atest.com domain.
 
 * Review the default config, `less /etc/apache2/sites-available/000-default.conf`
-* `sudo nano /etc/apache2/sites-available/bd-designs.com.conf`
+* `sudo nano /etc/apache2/sites-available/atest.com.conf`
 * Add the following to this new configuration
 
 ```
-# start BD-DESIGNS.COM
+# start atest.COM
 <VirtualHost *:80>
-    ServerName bd-designs.com
-    ServerAlias *.bd-designs.com
-    ServerAdmin admin@bd-designs.com
+    ServerName atest.com
+    ServerAlias *.atest.com
+    ServerAdmin admin@atest.com
 
-    DocumentRoot /var/www/bd-designs.com/html
+    DocumentRoot /var/www/atest.com/html
     <Directory />
         Options FollowSymLinks
         AllowOverride None
     </Directory>
-    <Directory /var/www/bd-designs.com/html/>
+    <Directory /var/www/atest.com/html/>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Order allow,deny
@@ -90,20 +90,20 @@ A virtual host on Apache allows Apache to serve websites for multiple domains of
     </Directory>
 
 </VirtualHost>
-# end BD-DESIGNS.COM
+# end atest.COM
 ```
 
-* Note the DocumentRoot is **/var/www/bd-designs.com/html**. This is where all the website files will go.
+* Note the DocumentRoot is **/var/www/atest.com/html**. This is where all the website files will go.
 * Create a web viewable file
-** `sudo nano /var/www/bd-designs.com/html/index.html`
+** `sudo nano /var/www/atest.com/html/index.html`
 
 ```
 <html>
   <head>
-    <title>Welcome to BD Designs!</title>
+    <title>Welcome to A Test!</title>
   </head>
   <body>
-    <h1>Success! This is a test page of the bd-designs.com virtual host settings.</h1>
+    <h1>Success! This is a test page of the atest.com virtual host settings.</h1>
   </body>
 </html>
 ```
@@ -111,8 +111,8 @@ A virtual host on Apache allows Apache to serve websites for multiple domains of
 * Change file permissions of web accessible files. (Caution: this disables all executable files)
 ** `sudo chmod -R 644 /var/www`
 ** `sudo chmod -R ug=rwX,o=rX /var/www`
-* Enable the virtual host, `sudo a2ensite bd-designs.com.conf`
-** to disable a site use `sudo a2dissite bd-designs.com.conf `
+* Enable the virtual host, `sudo a2ensite atest.com.conf`
+** to disable a site use `sudo a2dissite atest.com.conf `
 * `service apache2 reload`
 
 Next, is to point the domain at the server's IP address. This is not covered in this document but there are two methods.
@@ -124,15 +124,15 @@ Next, is to point the domain at the server's IP address. This is not covered in 
 
 == Install WordPress
 
-I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](https://wordpress.org/download/) and enable automatic updates. This example uses the tosamakers.com domain.
+I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](https://wordpress.org/download/) and enable automatic updates. This example uses the amaker.com domain.
 
 **Set your DNS or hosts file to point your domain to the server**
 
-* `sudo mkdir /var/www/tosamakers.com`
-* `sudo cd /var/www/tosamakers.com`
+* `sudo mkdir /var/www/amaker.com`
+* `sudo cd /var/www/amaker.com`
 * `sudo wget "https://wordpress.org/latest.tar.gz"`
 * `sudo tar -xzvf latest.tar.gz`
-* Use WordPress as the root for tosamakers.com
+* Use WordPress as the root for amaker.com
 ** `sudo mv wordpress html`
 * WordPress itself will need to modify files for configuration and updates
 ** `sudo chown -R www-data:www-data html`
@@ -140,32 +140,32 @@ I prefer not to use the apt system for installing and maintaining WordPress. Thi
 === Configure a Virtual Host
 
 * Similar to the previous virtual host except that now we must permit mod_rewrite and .htaccess files.
-** `sudo nano /etc/apache2/sites-available/tosamakers.com.conf`
+** `sudo nano /etc/apache2/sites-available/amaker.com.conf`
 * Add the following to this new configuration
 
 ```
-# start TOSAMAKERS.COM
+# start amaker.COM
 <VirtualHost *:80>
-    ServerName tosamakers.com
-    ServerAlias *.tosamakers.com
-    ServerAdmin admin@tosamakers.com
+    ServerName amaker.com
+    ServerAlias *.amaker.com
+    ServerAdmin admin@amaker.com
 
-    DocumentRoot /var/www/tosamakers.com/html
-    <Directory /var/www/tosamakers.com/html>
+    DocumentRoot /var/www/amaker.com/html
+    <Directory /var/www/amaker.com/html>
             Options -Indexes +FollowSymLinks +MultiViews
             AllowOverride All
             Order allow,deny
             allow from all
     </Directory>
 </VirtualHost>
-# end TOSAMAKERS.COM
+# end amaker.COM
 ```
-* `sudo a2ensite tosamakers.com.conf`
+* `sudo a2ensite amaker.com.conf`
 * `sudo service apache2 restart`
 
 === Add a database
 
-Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named _tosamakers_.
+Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named _amaker_.
 
 * Login to phpMyAdmin
 * Click the _User Accounts_ tab
@@ -272,6 +272,7 @@ with open(file3, 'w') as f:
 
 Now we use a bash script to control the flow and call various commands. The script is _init_git_then_s3.sh_.
 
+[source, bash]
 .init_git_then_s3.sh
 ----
 #!/bin/bash
@@ -347,8 +348,8 @@ define('DB_USER', 'usertest');
 define('DB_PASSWORD', 'password');
 ----
 
-* Dump the database, `mysqldump --user=usertest --password=password --opt dbtest > /var/local/dbdumps/test.sql`
-* Compress the file, `gzip /var/local/dbdumps/test.sql`
+* Dump the database, `mysqldump --user=usertest --password=password --opt   --result-file=/var/local/dbdumps/dbtest.sql dbtest`
+* Compress the file, `gzip /var/local/dbdumps/dbtest.sql`
 * Sync it to S3, `aws s3 sync /var/local/dbdumps s3://bucket-repos/dbdumps --delete`
 * Verify with `aws s3 ls s3://bucket-repos/dbdumps/`
 
@@ -357,9 +358,62 @@ define('DB_PASSWORD', 'password');
 The hardest part of this script is getting the database information from wp-config.php. A python script should do the trick.
 
 
+* `find /var/www -name wp-config.php -print`
+find /var/www -name wp-config.php  | xargs grep DB_NAME
+find /var/www -name wp-config.php  | xargs grep "DB_NAME.*'(.*)'"
 
 
+[source, python]
+.mysql2s3.py
+----
+#!/bin/python
+"""
+mysql2s3.py: Pulls credentials from the files passed via command line.
+Then it calls the mysqldump command to backup databases. Finally,
+it syncs the backed up databases to an AWS S3 bucket
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py
+"""
 
+import sys
+import re
+import datetime
+import subprocess
+
+# Some variables that you may choose to change.
+SITEDIR = "/var/www/"
+DUMPDIR = "/var/local/dbdumps/"
+S3BUCKET = "s3://ggis-repos/"
+
+# Compile our regexes
+DB_NAME = re.compile("DB_NAME.*'(.*)'")
+DB_USER = re.compile("DB_USER.*'(.*)'")
+DB_PASSWORD = re.compile("DB_PASSWORD.*'(.*)'")
+
+# Build date string
+todaystring = datetime.date.today().isoformat()
+
+thefiles = sys.argv[1:]
+
+for filename in thefiles:
+    with open(filename) as f:
+        text = f.read()
+    f.close()
+    name_match = DB_NAME.findall(text)
+    user_match = DB_USER.findall(text)
+    password_match = DB_PASSWORD.findall(text)
+    # print(name_match, user_match, password_match)
+    result_file = DUMPDIR + name_match[0] + todaystring + '.sql'
+    arg1 = '--user=' + user_match[0]
+    arg2 = '--password=' + password_match[0]
+    arg3 = '--opt'
+    arg4 = '--result-file=' + result_file
+    subprocess.call(['mysqldump', arg1, arg2, arg3, arg4, name_match[0]])
+    subprocess.call(['gzip', result_file])
+
+subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])
+
+----
 
 == Additional References
 

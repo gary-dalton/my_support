@@ -11,7 +11,6 @@
 <title>Install and Maintain WordPress</title>
 <link rel="stylesheet" href="stylesheets/github.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
@@ -193,7 +192,7 @@
 <h2 id="_test_a_virtual_host">Test a Virtual Host</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I&#8217;ll demonstrated this using a simple configuration for the bd-designs.com domain.</p>
+<p>A virtual host on Apache allows Apache to serve websites for multiple domains of a single IP address or interface. I&#8217;ll demonstrated this using a simple configuration for the atest.com domain.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -201,7 +200,7 @@
 <p>Review the default config, <code>less /etc/apache2/sites-available/000-default.conf</code></p>
 </li>
 <li>
-<p><code>sudo nano /etc/apache2/sites-available/bd-designs.com.conf</code></p>
+<p><code>sudo nano /etc/apache2/sites-available/atest.com.conf</code></p>
 </li>
 <li>
 <p>Add the following to this new configuration</p>
@@ -210,18 +209,18 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code># start BD-DESIGNS.COM
+<pre class="highlightjs highlight"><code># start atest.COM
 &lt;VirtualHost *:80&gt;
-    ServerName bd-designs.com
-    ServerAlias *.bd-designs.com
-    ServerAdmin admin@bd-designs.com
+    ServerName atest.com
+    ServerAlias *.atest.com
+    ServerAdmin admin@atest.com
 
-    DocumentRoot /var/www/bd-designs.com/html
+    DocumentRoot /var/www/atest.com/html
     &lt;Directory /&gt;
         Options FollowSymLinks
         AllowOverride None
     &lt;/Directory&gt;
-    &lt;Directory /var/www/bd-designs.com/html/&gt;
+    &lt;Directory /var/www/atest.com/html/&gt;
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Order allow,deny
@@ -229,20 +228,20 @@
     &lt;/Directory&gt;
 
 &lt;/VirtualHost&gt;
-# end BD-DESIGNS.COM</code></pre>
+# end atest.COM</code></pre>
 </div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Note the DocumentRoot is <strong>/var/www/bd-designs.com/html</strong>. This is where all the website files will go.</p>
+<p>Note the DocumentRoot is <strong>/var/www/atest.com/html</strong>. This is where all the website files will go.</p>
 </li>
 <li>
 <p>Create a web viewable file</p>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sudo nano /var/www/bd-designs.com/html/index.html</code></p>
+<p><code>sudo nano /var/www/atest.com/html/index.html</code></p>
 </li>
 </ul>
 </div>
@@ -251,12 +250,12 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code>&lt;html&gt;
+<pre class="highlightjs highlight"><code>&lt;html&gt;
   &lt;head&gt;
-    &lt;title&gt;Welcome to BD Designs!&lt;/title&gt;
+    &lt;title&gt;Welcome to A Test!&lt;/title&gt;
   &lt;/head&gt;
   &lt;body&gt;
-    &lt;h1&gt;Success! This is a test page of the bd-designs.com virtual host settings.&lt;/h1&gt;
+    &lt;h1&gt;Success! This is a test page of the atest.com virtual host settings.&lt;/h1&gt;
   &lt;/body&gt;
 &lt;/html&gt;</code></pre>
 </div>
@@ -277,11 +276,11 @@
 </div>
 </li>
 <li>
-<p>Enable the virtual host, <code>sudo a2ensite bd-designs.com.conf</code></p>
+<p>Enable the virtual host, <code>sudo a2ensite atest.com.conf</code></p>
 <div class="ulist">
 <ul>
 <li>
-<p>to disable a site use `sudo a2dissite bd-designs.com.conf `</p>
+<p>to disable a site use `sudo a2dissite atest.com.conf `</p>
 </li>
 </ul>
 </div>
@@ -320,7 +319,7 @@
 <h2 id="_install_wordpress">Install WordPress</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](<a href="https://wordpress.org/download/" class="bare">https://wordpress.org/download/</a>) and enable automatic updates. This example uses the tosamakers.com domain.</p>
+<p>I prefer not to use the apt system for installing and maintaining WordPress. This application has frequent updates some of which may be critical, so install it from [WordPress](<a href="https://wordpress.org/download/" class="bare">https://wordpress.org/download/</a>) and enable automatic updates. This example uses the amaker.com domain.</p>
 </div>
 <div class="paragraph">
 <p><strong>Set your DNS or hosts file to point your domain to the server</strong></p>
@@ -328,10 +327,10 @@
 <div class="ulist">
 <ul>
 <li>
-<p><code>sudo mkdir /var/www/tosamakers.com</code></p>
+<p><code>sudo mkdir /var/www/amaker.com</code></p>
 </li>
 <li>
-<p><code>sudo cd /var/www/tosamakers.com</code></p>
+<p><code>sudo cd /var/www/amaker.com</code></p>
 </li>
 <li>
 <p><code>sudo wget "https://wordpress.org/latest.tar.gz"</code></p>
@@ -340,7 +339,7 @@
 <p><code>sudo tar -xzvf latest.tar.gz</code></p>
 </li>
 <li>
-<p>Use WordPress as the root for tosamakers.com</p>
+<p>Use WordPress as the root for amaker.com</p>
 <div class="ulist">
 <ul>
 <li>
@@ -370,7 +369,7 @@
 <div class="ulist">
 <ul>
 <li>
-<p><code>sudo nano /etc/apache2/sites-available/tosamakers.com.conf</code></p>
+<p><code>sudo nano /etc/apache2/sites-available/amaker.com.conf</code></p>
 </li>
 </ul>
 </div>
@@ -382,27 +381,27 @@
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code># start TOSAMAKERS.COM
+<pre class="highlightjs highlight"><code># start amaker.COM
 &lt;VirtualHost *:80&gt;
-    ServerName tosamakers.com
-    ServerAlias *.tosamakers.com
-    ServerAdmin admin@tosamakers.com
+    ServerName amaker.com
+    ServerAlias *.amaker.com
+    ServerAdmin admin@amaker.com
 
-    DocumentRoot /var/www/tosamakers.com/html
-    &lt;Directory /var/www/tosamakers.com/html&gt;
+    DocumentRoot /var/www/amaker.com/html
+    &lt;Directory /var/www/amaker.com/html&gt;
             Options -Indexes +FollowSymLinks +MultiViews
             AllowOverride All
             Order allow,deny
             allow from all
     &lt;/Directory&gt;
 &lt;/VirtualHost&gt;
-# end TOSAMAKERS.COM</code></pre>
+# end amaker.COM</code></pre>
 </div>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>sudo a2ensite tosamakers.com.conf</code></p>
+<p><code>sudo a2ensite amaker.com.conf</code></p>
 </li>
 <li>
 <p><code>sudo service apache2 restart</code></p>
@@ -413,7 +412,7 @@
 <div class="sect2">
 <h3 id="_add_a_database">Add a database</h3>
 <div class="paragraph">
-<p>Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named <em>tosamakers</em>.</p>
+<p>Here we will add a user and database to be used by our WordPress installation. For this example the user and database are named <em>amaker</em>.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -615,24 +614,24 @@ test4.com</pre>
 <div class="listingblock">
 <div class="title">all-s3ed.py</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="python"><span class="comment">#!/bin/python</span>
-<span class="docstring"><span class="delimiter">&quot;&quot;&quot;</span><span class="content">
-</span><span class="content">all-s3ed.py: Generates the set difference to create the todo_sites file.</span><span class="content">
-</span><span class="delimiter">&quot;&quot;&quot;</span></span>
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+all-s3ed.py: Generates the set difference to create the todo_sites file.
+"""
 
-file1 = <span class="string"><span class="delimiter">&quot;</span><span class="content">s3ed_sites.txt</span><span class="delimiter">&quot;</span></span>
-file2 = <span class="string"><span class="delimiter">&quot;</span><span class="content">all_sites.txt</span><span class="delimiter">&quot;</span></span>
-file3 = <span class="string"><span class="delimiter">&quot;</span><span class="content">todo_sites.txt</span><span class="delimiter">&quot;</span></span>
+file1 = "s3ed_sites.txt"
+file2 = "all_sites.txt"
+file3 = "todo_sites.txt"
 
-<span class="keyword">with</span> <span class="predefined">open</span>(file1) <span class="keyword">as</span> f:
+with open(file1) as f:
   done =  f.read().splitlines()
 
-<span class="keyword">with</span> <span class="predefined">open</span>(file2) <span class="keyword">as</span> f:
+with open(file2) as f:
   all =  f.read().splitlines()
 
-todo = <span class="predefined">set</span>(<span class="predefined">all</span>).difference(done)
-<span class="keyword">with</span> <span class="predefined">open</span>(file3, <span class="string"><span class="delimiter">'</span><span class="content">w</span><span class="delimiter">'</span></span>) <span class="keyword">as</span> f:
-  f.write(<span class="string"><span class="delimiter">'</span><span class="char">\n</span><span class="delimiter">'</span></span>.join(todo))</code></pre>
+todo = set(all).difference(done)
+with open(file3, 'w') as f:
+  f.write('\n'.join(todo))</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -641,7 +640,7 @@ todo = <span class="predefined">set</span>(<span class="predefined">all</span>).
 <div class="listingblock">
 <div class="title">init_git_then_s3.sh</div>
 <div class="content">
-<pre>#!/bin/bash
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
 #
 # This script must be run as sudo.
 # This script expects site names input from a file.
@@ -663,7 +662,7 @@ do
     git clone $SITEDIR$f $REPOSDIR$f
     aws s3 sync $REPOSDIR$f s3://$S3BUCKET/$f --delete
 
-done</pre>
+done</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -780,10 +779,10 @@ define('DB_PASSWORD', 'password');</pre>
 <div class="ulist">
 <ul>
 <li>
-<p>Dump the database, <code>mysqldump --user=usertest --password=password --opt dbtest &gt; /var/local/dbdumps/test.sql</code></p>
+<p>Dump the database, <code>mysqldump --user=usertest --password=password --opt   --result-file=/var/local/dbdumps/dbtest.sql dbtest</code></p>
 </li>
 <li>
-<p>Compress the file, <code>gzip /var/local/dbdumps/test.sql</code></p>
+<p>Compress the file, <code>gzip /var/local/dbdumps/dbtest.sql</code></p>
 </li>
 <li>
 <p>Sync it to S3, <code>aws s3 sync /var/local/dbdumps s3://bucket-repos/dbdumps --delete</code></p>
@@ -798,6 +797,66 @@ define('DB_PASSWORD', 'password');</pre>
 <h4 id="_creating_a_scripted_run">Creating a Scripted Run</h4>
 <div class="paragraph">
 <p>The hardest part of this script is getting the database information from wp-config.php. A python script should do the trick.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>find /var/www -name wp-config.php -print</code>
+find /var/www -name wp-config.php  | xargs grep DB_NAME
+find /var/www -name wp-config.php  | xargs grep "DB_NAME.<strong>'(.</strong>)'"</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">mysql2s3.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+mysql2s3.py: Pulls credentials from the files passed via command line.
+Then it calls the mysqldump command to backup databases. Finally,
+it syncs the backed up databases to an AWS S3 bucket
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py
+"""
+
+import sys
+import re
+import datetime
+import subprocess
+
+# Some variables that you may choose to change.
+SITEDIR = "/var/www/"
+DUMPDIR = "/var/local/dbdumps/"
+S3BUCKET = "s3://ggis-repos/"
+
+# Compile our regexes
+DB_NAME = re.compile("DB_NAME.*'(.*)'")
+DB_USER = re.compile("DB_USER.*'(.*)'")
+DB_PASSWORD = re.compile("DB_PASSWORD.*'(.*)'")
+
+# Build date string
+todaystring = datetime.date.today().isoformat()
+
+thefiles = sys.argv[1:]
+
+for filename in thefiles:
+    with open(filename) as f:
+        text = f.read()
+    f.close()
+    name_match = DB_NAME.findall(text)
+    user_match = DB_USER.findall(text)
+    password_match = DB_PASSWORD.findall(text)
+    # print(name_match, user_match, password_match)
+    result_file = DUMPDIR + name_match[0] + todaystring + '.sql'
+    arg1 = '--user=' + user_match[0]
+    arg2 = '--password=' + password_match[0]
+    arg3 = '--opt'
+    arg4 = '--result-file=' + result_file
+    subprocess.call(['mysqldump', arg1, arg2, arg3, arg4, name_match[0]])
+    subprocess.call(['gzip', result_file])
+
+subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -837,8 +896,11 @@ define('DB_PASSWORD', 'password');</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-20 21:33:50 Central Standard Time
+Last updated 2016-12-21 13:19:11 Central Standard Time
 </div>
 </div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
 </body>
 </html>
