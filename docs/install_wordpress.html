@@ -8,14 +8,14 @@
 <meta name="description" content="WordPress on a LAMP stack with Ubuntu">
 <meta name="keywords" content="lamp, ubuntu, apache, mysql, php, phpmyadmin, wordpress, guide, install">
 <meta name="author" content="Gary Dalton">
-<title>Install WordPress</title>
+<title>Install and Maintain WordPress</title>
 <link rel="stylesheet" href="stylesheets/github.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
-<h1>Install WordPress</h1>
+<h1>Install and Maintain WordPress</h1>
 <div class="details">
 <span id="author" class="author">Gary Dalton</span><br>
 <span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
@@ -39,6 +39,25 @@
 <li><a href="#_configure_a_virtual_host">Configure a Virtual Host</a></li>
 <li><a href="#_add_a_database">Add a database</a></li>
 <li><a href="#_configure_wordpress">Configure WordPress</a></li>
+</ul>
+</li>
+<li><a href="#_maintain_wordpress">Maintain WordPress</a>
+<ul class="sectlevel2">
+<li><a href="#_backup_files">Backup Files</a>
+<ul class="sectlevel3">
+<li><a href="#_assumptions">Assumptions:</a></li>
+<li><a href="#_manual_first_run">Manual First Run</a></li>
+<li><a href="#_creating_a_scripted_first_run">Creating a Scripted First Run</a></li>
+<li><a href="#_stepping_through_a_scripted_first_run">Stepping Through a Scripted First Run</a></li>
+</ul>
+</li>
+<li><a href="#_backup_databases">Backup Databases</a>
+<ul class="sectlevel3">
+<li><a href="#_assumptions_2">Assumptions:</a></li>
+<li><a href="#_manual_first_run_2">Manual First Run</a></li>
+<li><a href="#_creating_a_scripted_run">Creating a Scripted Run</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_additional_references">Additional References</a></li>
@@ -439,6 +458,352 @@
 </div>
 </div>
 <div class="sect1">
+<h2 id="_maintain_wordpress">Maintain WordPress</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_backup_files">Backup Files</h3>
+<div class="paragraph">
+<p>Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with a simple shell script. First, I will run through the manual process and then share the script.</p>
+</div>
+<div class="sect3">
+<h4 id="_assumptions">Assumptions:</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>WordPress sites are located in <em>/var/www</em>. This example uses the site <em>test</em>.</p>
+</li>
+<li>
+<p>Git cloned repositories are located at <em>/var/local/repos</em>. The example site uses <em>test</em>.</p>
+</li>
+<li>
+<p>Offsite backup is stored to an AWS S3 bucket. This example uses <em>bucket-repos</em></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_manual_first_run">Manual First Run</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo -i</code></p>
+</li>
+<li>
+<p><code>cd /var/www/test</code></p>
+</li>
+<li>
+<p><code>git init /var/www/test</code></p>
+</li>
+<li>
+<p><code>git add --all</code></p>
+</li>
+<li>
+<p><code>git commit -m "Initial commit of site"</code></p>
+</li>
+<li>
+<p><code>mkdir /var/local/repos</code></p>
+</li>
+<li>
+<p><code>git clone /var/www/test /var/local/repos/test</code></p>
+</li>
+<li>
+<p><code>exit</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>You now have a local clone of your current WordPress files. Now lets make an AWS S3 clone of the site.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+Since some files contain sensitive information (particularly wp-config.php), the clone should not be public.
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>This method uses AWS CLI, see more at <a href="https://aws.amazon.com/documentation/cli/" class="bare">https://aws.amazon.com/documentation/cli/</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install awscli</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt install python-pip</code></p>
+</li>
+<li>
+<p><code>sudo pip install awscli</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Configure awscli, <code>aws configure</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>You need your AWS Access Key and Secret Access key.</p>
+</li>
+<li>
+<p>If you don&#8217;t have those keys, see <a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html" class="bare">https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-set-up.html</a></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Setup the S3 bucket</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Make a new bucket, <code>aws s3 mb s3://bucket-repos</code></p>
+</li>
+<li>
+<p>List all buckets, <code>aws s3 ls</code></p>
+</li>
+<li>
+<p>List the contents of a bucket, <code>aws s3 ls s3://bucket-repos</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Synchronize the contents of the local repository with the S3 bucket.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo aws s3 sync /var/local/repos/test s3://bucket-repos/test --delete</code></p>
+</li>
+<li>
+<p>Verify, <code>aws s3 ls s3://bucket-repos/test/html/</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_creating_a_scripted_first_run">Creating a Scripted First Run</h4>
+<div class="paragraph">
+<p>Now let&#8217;s automate that whole process by creating a shell script. First we&#8217;ll create some txt files that are used as input to the script.</p>
+</div>
+<div class="paragraph">
+<p>The first file is <em>s3ed_sites.txt</em>. This is a list of sites already run through this process. Most of the entries are auto-generated but let&#8217;s add any sites we initialized manually. A single site per line.</p>
+</div>
+<div class="listingblock">
+<div class="title">s3ed_sites.txt</div>
+<div class="content">
+<pre>test.com
+test2.org
+test3
+test4.com</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The second file is <em>all_sites.txt</em>, a list of all sites in <em>/var/www</em> that need to be initialized. Again, this can be auto-generated by using a command such as <code>ls /var/www &gt; all_sites.txt</code>. The format is also a single site per line.</p>
+</div>
+<div class="paragraph">
+<p>The third file is <em>todo_sites.txt</em>. This file is just the difference between <em>s3ed_sites.txt</em> and <em>all_sites.txt</em>. The following python script, all-s3ed.py, creates this third file. Call the script by <code>python ./all-s3ed.py</code></p>
+</div>
+<div class="listingblock">
+<div class="title">all-s3ed.py</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="python"><span class="comment">#!/bin/python</span>
+<span class="docstring"><span class="delimiter">&quot;&quot;&quot;</span><span class="content">
+</span><span class="content">all-s3ed.py: Generates the set difference to create the todo_sites file.</span><span class="content">
+</span><span class="delimiter">&quot;&quot;&quot;</span></span>
+
+file1 = <span class="string"><span class="delimiter">&quot;</span><span class="content">s3ed_sites.txt</span><span class="delimiter">&quot;</span></span>
+file2 = <span class="string"><span class="delimiter">&quot;</span><span class="content">all_sites.txt</span><span class="delimiter">&quot;</span></span>
+file3 = <span class="string"><span class="delimiter">&quot;</span><span class="content">todo_sites.txt</span><span class="delimiter">&quot;</span></span>
+
+<span class="keyword">with</span> <span class="predefined">open</span>(file1) <span class="keyword">as</span> f:
+  done =  f.read().splitlines()
+
+<span class="keyword">with</span> <span class="predefined">open</span>(file2) <span class="keyword">as</span> f:
+  all =  f.read().splitlines()
+
+todo = <span class="predefined">set</span>(<span class="predefined">all</span>).difference(done)
+<span class="keyword">with</span> <span class="predefined">open</span>(file3, <span class="string"><span class="delimiter">'</span><span class="content">w</span><span class="delimiter">'</span></span>) <span class="keyword">as</span> f:
+  f.write(<span class="string"><span class="delimiter">'</span><span class="char">\n</span><span class="delimiter">'</span></span>.join(todo))</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Now we use a bash script to control the flow and call various commands. The script is <em>init_git_then_s3.sh</em>.</p>
+</div>
+<div class="listingblock">
+<div class="title">init_git_then_s3.sh</div>
+<div class="content">
+<pre>#!/bin/bash
+#
+# This script must be run as sudo.
+# This script expects site names input from a file.
+# Call this script thusly:
+# sudo ./init_git_then_s3.sh $(cat todo_sites.txt)
+
+# Some variables that you may choose to change.
+SITEDIR="/var/www/"
+REPOSDIR="/var/local/repos/"
+S3BUCKET="ggis-repos"
+
+SITES="$@"
+for f in $SITES
+do
+    cd $SITEDIR$f
+    git init $SITEDIR$f
+    git add --all
+    git commit -m "Initial commit of site"
+    git clone $SITEDIR$f $REPOSDIR$f
+    aws s3 sync $REPOSDIR$f s3://$S3BUCKET/$f --delete
+
+done</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This file is called by <code>sudo ./init_git_then_s3.sh $(cat todo_sites.txt)</code></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_stepping_through_a_scripted_first_run">Stepping Through a Scripted First Run</h4>
+<div class="paragraph">
+<p>Let&#8217;s put it all together.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>nano s3ed_sites.txt</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Add any sites, one per line, that you may have initialized manually.</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>ls /var/www &gt; all_sites.txt</code></p>
+</li>
+<li>
+<p><code>python ./all-s3ed.py</code></p>
+</li>
+<li>
+<p><code>sudo ./init_git_then_s3.sh $(cat todo_sites.txt)</code></p>
+</li>
+<li>
+<p>Manually verify that all that your sites are now synced to S3.</p>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://console.aws.amazon.com/s3" class="bare">https://console.aws.amazon.com/s3</a></p>
+</li>
+<li>
+<p>View your repository bucket</p>
+</li>
+<li>
+<p>Dig through the repositories to verify.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Later, we will create a cron backup script that will run automatically.</p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_backup_databases">Backup Databases</h3>
+<div class="paragraph">
+<p>Here we perform many of the same tasks only for databases.</p>
+</div>
+<div class="sect3">
+<h4 id="_assumptions_2">Assumptions:</h4>
+<div class="ulist">
+<ul>
+<li>
+<p>WordPress sites are located in <em>/var/www</em>. This example uses the site <em>test</em>.</p>
+</li>
+<li>
+<p>Database dumps are saved to <em>/var/local/dbdumps</em>. The example site uses <em>test</em>.</p>
+</li>
+<li>
+<p>Database names, usernames, and passwords are stored in the various site <em>wp-config.php</em> files.</p>
+</li>
+<li>
+<p>Offsite backup is stored to an AWS S3 bucket. This example uses <em>S3-test</em></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_manual_first_run_2">Manual First Run</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo -i</code></p>
+</li>
+<li>
+<p><code>mkdir /var/local/dbdumps/</code></p>
+</li>
+<li>
+<p><code>less /var/www/test/html/wp-config.php</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Find the lines which define the following:</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>/** The name of the database for WordPress */
+define('DB_NAME', 'dbtest');
+
+/** MySQL database username */
+define('DB_USER', 'usertest');
+
+/** MySQL database password */
+define('DB_PASSWORD', 'password');</pre>
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Dump the database, <code>mysqldump --user=usertest --password=password --opt dbtest &gt; /var/local/dbdumps/test.sql</code></p>
+</li>
+<li>
+<p>Compress the file, <code>gzip /var/local/dbdumps/test.sql</code></p>
+</li>
+<li>
+<p>Sync it to S3, <code>aws s3 sync /var/local/dbdumps s3://bucket-repos/dbdumps --delete</code></p>
+</li>
+<li>
+<p>Verify with <code>aws s3 ls s3://bucket-repos/dbdumps/</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_creating_a_scripted_run">Creating a Scripted Run</h4>
+<div class="paragraph">
+<p>The hardest part of this script is getting the database information from wp-config.php. A python script should do the trick.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_additional_references">Additional References</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -472,7 +837,7 @@
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-19 18:09:22 Central Standard Time
+Last updated 2016-12-20 21:33:50 Central Standard Time
 </div>
 </div>
 </body>
