@@ -328,7 +328,7 @@ Here we perform many of the same tasks only for databases.
 * WordPress sites are located in _/var/www_. This example uses the site _test_.
 * Database dumps are saved to _/var/local/dbdumps_. The example site uses _test_.
 * Database names, usernames, and passwords are stored in the various site _wp-config.php_ files.
-* Offsite backup is stored to an AWS S3 bucket. This example uses _S3-test_
+* Offsite backup is stored to an AWS S3 bucket. This example uses _bucket-repos_
 
 ==== Manual First Run
 
@@ -383,7 +383,7 @@ import subprocess
 # Some variables that you may choose to change.
 SITEDIR = "/var/www/"
 DUMPDIR = "/var/local/dbdumps/"
-S3BUCKET = "s3://ggis-repos/"
+S3BUCKET = "s3://bucket-repos/"
 
 # Compile our regexes
 DB_NAME = re.compile("DB_NAME.*'(.*)'")
@@ -393,6 +393,7 @@ DB_PASSWORD = re.compile("DB_PASSWORD.*'(.*)'")
 # Build date string
 todaystring = datetime.date.today().isoformat()
 
+# Files to process passed in as command line arguments
 thefiles = sys.argv[1:]
 
 for filename in thefiles:

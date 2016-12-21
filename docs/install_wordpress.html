@@ -737,7 +737,7 @@ done</code></pre>
 <p>Database names, usernames, and passwords are stored in the various site <em>wp-config.php</em> files.</p>
 </li>
 <li>
-<p>Offsite backup is stored to an AWS S3 bucket. This example uses <em>S3-test</em></p>
+<p>Offsite backup is stored to an AWS S3 bucket. This example uses <em>bucket-repos</em></p>
 </li>
 </ul>
 </div>
@@ -827,7 +827,7 @@ import subprocess
 # Some variables that you may choose to change.
 SITEDIR = "/var/www/"
 DUMPDIR = "/var/local/dbdumps/"
-S3BUCKET = "s3://ggis-repos/"
+S3BUCKET = "s3://bucket-repos/"
 
 # Compile our regexes
 DB_NAME = re.compile("DB_NAME.*'(.*)'")
@@ -837,6 +837,7 @@ DB_PASSWORD = re.compile("DB_PASSWORD.*'(.*)'")
 # Build date string
 todaystring = datetime.date.today().isoformat()
 
+# Files to process passed in as command line arguments
 thefiles = sys.argv[1:]
 
 for filename in thefiles:
@@ -896,7 +897,7 @@ subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pr
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-21 13:19:11 Central Standard Time
+Last updated 2016-12-21 13:29:26 Central Standard Time
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
