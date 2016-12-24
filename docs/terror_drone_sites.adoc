@@ -1,0 +1,61 @@
+= Terrorism and Drones
+Gary Dalton <https://github.com/gary-dalton>
+:description: A listing of sites and sources covering terrorism and military drones. Even though the main effort is to list data sites and visualizations, the nature of the subject matter will often include sites of opinion.
+:revnumber: 1.0
+:revdate: 23 December 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets terror_drone_sites.adoc
+:keywords: lamp, ubuntu, apache, mysql, php, phpmyadmin, wordpress, guide, install
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+== Introduction
+
+Validated data sources will, by necessity, not cover the current year.
+
+
+== Terrorism
+
+* http://www.start.umd.edu/
+* https://www.start.umd.edu/gtd/
+* https://ourworldindata.org/terrorism/
+* http://www.globalincidentmap.com/
+* https://en.wikipedia.org/wiki/Portal:Terrorism
+* https://en.wikipedia.org/wiki/List_of_terrorist_incidents,_2016
+* http://www.longwarjournal.org/
+* http://www.defenddemocracy.org/
+* http://visionofhumanity.org/
+
+
+== Drones
+
+* http://securitydata.newamerica.net/world-drones.html
+* http://securitydata.newamerica.net/drones/pakistan-analysis.html
+* https://www.thebureauinvestigates.com/category/projects/drones/drones-graphs/
+* http://web.law.columbia.edu/human-rights-institute/counterterrorism/drone-strikes/counting-drone-strike-deaths
+* http://wherethedronesstrike.com/
+* https://dronewars.net/drone-crash-database/
+
+== Military Ops
+
+Military Ops includes a wide variety of data and analysis on current and past operations. Operations is used instead of wars due to the increasing usage of forces in undeclared warfare. This is especially true in regards to use of drones and special operations forces.
+
+* http://www.rand.org/pubs/research_briefs/RB2502/index1.html
+* http://usawc.libguides.com/content.php?pid=561225&sid=4626333
+* https://www.theatlantic.com/international/archive/2016/03/obama-doctrine-wars-numbers/474531/
+* https://www.niem.gov/communities/MilOps/Pages/MilOps.aspx
+* https://fas.org/
