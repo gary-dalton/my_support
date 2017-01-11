@@ -40,23 +40,32 @@
 <li><a href="#_configure_wordpress">Configure WordPress</a></li>
 </ul>
 </li>
-<li><a href="#_backup_wordpress">Backup WordPress</a>
+<li><a href="#_backup_wordpress_files">Backup WordPress Files</a>
 <ul class="sectlevel2">
-<li><a href="#_backup_files">Backup Files</a>
-<ul class="sectlevel3">
 <li><a href="#_assumptions">Assumptions:</a></li>
-<li><a href="#_manual_first_run">Manual First Run</a></li>
-<li><a href="#_creating_a_scripted_first_run">Creating a Scripted First Run</a></li>
-<li><a href="#_stepping_through_a_scripted_first_run">Stepping Through a Scripted First Run</a></li>
-</ul>
-</li>
-<li><a href="#_backup_databases">Backup Databases</a>
+<li><a href="#_manual_initializing_run">Manual Initializing Run</a>
 <ul class="sectlevel3">
-<li><a href="#_assumptions_2">Assumptions</a></li>
-<li><a href="#_manual_first_run_2">Manual First Run</a></li>
-<li><a href="#_creating_a_scripted_run">Creating a Scripted Run</a></li>
+<li><a href="#_git_and_clone_the_site">Git and Clone the Site</a></li>
+<li><a href="#_sync_the_clone_to_aws_s3">Sync the Clone to AWS S3</a></li>
 </ul>
 </li>
+<li><a href="#_creating_a_scripted_initializing_run">Creating a Scripted Initializing Run</a>
+<ul class="sectlevel3">
+<li><a href="#_already_initialized_sites">Already Initialized Sites</a></li>
+<li><a href="#_all_sites">All Sites</a></li>
+<li><a href="#_todo_sites">ToDo Sites</a></li>
+<li><a href="#_perform_the_initial_git_and_sync_to_s3">Perform the Initial Git and Sync to S3</a></li>
+</ul>
+</li>
+<li><a href="#_performing_the_initializing_run">Performing the Initializing Run</a></li>
+<li><a href="#_ongoing_file_backup">Ongoing File Backup</a></li>
+</ul>
+</li>
+<li><a href="#_backup_wordpress_databases">Backup WordPress Databases</a>
+<ul class="sectlevel2">
+<li><a href="#_assumptions_2">Assumptions</a></li>
+<li><a href="#_manual_first_run">Manual First Run</a></li>
+<li><a href="#_creating_a_scripted_run">Creating a Scripted Run</a></li>
 </ul>
 </li>
 <li><a href="#_upgrade_wordpress">Upgrade WordPress</a>
@@ -470,15 +479,13 @@
 </div>
 </div>
 <div class="sect1">
-<h2 id="_backup_wordpress">Backup WordPress</h2>
+<h2 id="_backup_wordpress_files">Backup WordPress Files</h2>
 <div class="sectionbody">
-<div class="sect2">
-<h3 id="_backup_files">Backup Files</h3>
 <div class="paragraph">
-<p>Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with script. First, I will run through the manual process and then share the script.</p>
+<p>Backing up files is an important task in maintaining and recovering your WordPress site. Plugins are available to help with this task but I prefer to automate this task with scripts. First, I will run through the manual process and then share the scripts.</p>
 </div>
-<div class="sect3">
-<h4 id="_assumptions">Assumptions:</h4>
+<div class="sect2">
+<h3 id="_assumptions">Assumptions:</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -493,8 +500,10 @@
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_manual_initializing_run">Manual Initializing Run</h3>
 <div class="sect3">
-<h4 id="_manual_first_run">Manual First Run</h4>
+<h4 id="_git_and_clone_the_site">Git and Clone the Site</h4>
 <div class="ulist">
 <ul>
 <li>
@@ -523,9 +532,6 @@
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>You now have a local clone of your current WordPress files. Now lets make an AWS S3 clone of the site.</p>
-</div>
 <div class="admonitionblock important">
 <table>
 <tr>
@@ -538,8 +544,11 @@ Since some files contain sensitive information (particularly wp-config.php), the
 </tr>
 </table>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_sync_the_clone_to_aws_s3">Sync the Clone to AWS S3</h4>
 <div class="paragraph">
-<p>This method uses AWS CLI, see more at <a href="https://aws.amazon.com/documentation/cli/" class="bare">https://aws.amazon.com/documentation/cli/</a></p>
+<p>You now have a local clone of your current WordPress files. Now lets sync the clone to AWS S3. This method uses AWS CLI, see more at <a href="https://aws.amazon.com/documentation/cli/" class="bare">https://aws.amazon.com/documentation/cli/</a>.</p>
 </div>
 <div class="ulist">
 <ul>
@@ -568,6 +577,26 @@ Since some files contain sensitive information (particularly wp-config.php), the
 </li>
 </ul>
 </div>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Some of the python scripts also make use of boto3. See <a href="https://github.com/boto/boto3" class="bare">https://github.com/boto/boto3</a> and <a href="https://boto3.readthedocs.io/en/latest/" class="bare">https://boto3.readthedocs.io/en/latest/</a>.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install boto3</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo pip install boto3</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Since we have already configured AWS CLI, boto3 is already configured also.</p>
 </li>
 </ul>
 </div>
@@ -601,28 +630,49 @@ Since some files contain sensitive information (particularly wp-config.php), the
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_creating_a_scripted_first_run">Creating a Scripted First Run</h4>
-<div class="paragraph">
-<p>Now let&#8217;s automate that whole process by creating a shell script. First we&#8217;ll create some txt files that are used as input to the script.</p>
 </div>
+<div class="sect2">
+<h3 id="_creating_a_scripted_initializing_run">Creating a Scripted Initializing Run</h3>
 <div class="paragraph">
-<p>The first file is <em>s3ed_sites.txt</em>. This is a list of sites already run through this process. Most of the entries are auto-generated but let&#8217;s add any sites we initialized manually. A single site per line.</p>
+<p>Now let&#8217;s automate that whole process by creating a shell script. First we&#8217;ll create some text files that are used as input to the script. All of the text files are most easily created automatically, though each may be edited manually. The text files hold one site name per line.</p>
+</div>
+<div class="sect3">
+<h4 id="_already_initialized_sites">Already Initialized Sites</h4>
+<div class="paragraph">
+<p>The first file is <em>s3ed_sites.txt</em>. This is a list of sites already run through this process. The entries are auto-generated using the following <em>make_s3ed.py</em> script. Call the script with <code>python make_s3ed.py  &gt; s3ed_sites.txt</code></p>
 </div>
 <div class="listingblock">
-<div class="title">s3ed_sites.txt</div>
+<div class="title">make_s3ed.py</div>
 <div class="content">
-<pre>test.com
-test2.org
-test3
-test4.com</pre>
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+make_s3ed.py: Connects to S3 bucket used for repositories to list all currently synced sites. The output is often piped to s3ed_sites.txt
+How to call:
+python make_s3ed.py  &gt; s3ed_sites.txt
+"""
+
+import boto3
+
+S3BUCKET = "ggis-repos"
+
+client = boto3.client('s3')
+paginator = client.get_paginator('list_objects')
+result = paginator.paginate(Bucket=S3BUCKET, Delimiter='/')
+for prefix in result.search('CommonPrefixes'):
+    print(prefix.get('Prefix')[:-1])</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_all_sites">All Sites</h4>
 <div class="paragraph">
-<p>The second file is <em>all_sites.txt</em>, a list of all sites in <em>/var/www</em> that need to be initialized. Again, this can be auto-generated by using a command such as <code>ls /var/www &gt; all_sites.txt</code>. The format is also a single site per line.</p>
+<p>The second file is <em>all_sites.txt</em>, a list of all sites in <em>/var/www</em> that need to be initialized. This can be auto-generated by using a command such as <code>ls /var/www &gt; all_sites.txt</code>.</p>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_todo_sites">ToDo Sites</h4>
 <div class="paragraph">
-<p>The third file is <em>todo_sites.txt</em>. This file is just the difference between <em>s3ed_sites.txt</em> and <em>all_sites.txt</em>. The following python script, all-s3ed.py, creates this third file. Call the script by <code>python ./all-s3ed.py</code></p>
+<p>The third file is <em>todo_sites.txt</em>. This file is just the difference between <em>s3ed_sites.txt</em> and <em>all_sites.txt</em>. The following python script, <em>all-s3ed.py</em>, creates this third file. Call the script by <code>python ./all-s3ed.py</code></p>
 </div>
 <div class="listingblock">
 <div class="title">all-s3ed.py</div>
@@ -647,8 +697,11 @@ with open(file3, 'w') as f:
   f.write('\n'.join(todo))</code></pre>
 </div>
 </div>
+</div>
+<div class="sect3">
+<h4 id="_perform_the_initial_git_and_sync_to_s3">Perform the Initial Git and Sync to S3</h4>
 <div class="paragraph">
-<p>Now we use a bash script to control the flow and call various commands. The script is <em>init_git_then_s3.sh</em>.</p>
+<p>Now we use a bash script to control the flow and call various commands. The script is <em>init_git_then_s3.sh</em>. This file is called by <code>sudo ./init_git_then_s3.sh $(cat todo_sites.txt)</code></p>
 </div>
 <div class="listingblock">
 <div class="title">init_git_then_s3.sh</div>
@@ -678,26 +731,17 @@ do
 done</code></pre>
 </div>
 </div>
-<div class="paragraph">
-<p>This file is called by <code>sudo ./init_git_then_s3.sh $(cat todo_sites.txt)</code></p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_stepping_through_a_scripted_first_run">Stepping Through a Scripted First Run</h4>
+<div class="sect2">
+<h3 id="_performing_the_initializing_run">Performing the Initializing Run</h3>
 <div class="paragraph">
 <p>Let&#8217;s put it all together.</p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p><code>nano s3ed_sites.txt</code></p>
-<div class="ulist">
-<ul>
-<li>
-<p>Add any sites, one per line, that you may have initialized manually.</p>
-</li>
-</ul>
-</div>
+<p><code>python make_s3ed.py  &gt; s3ed_sites.txt</code></p>
 </li>
 <li>
 <p><code>ls /var/www &gt; all_sites.txt</code></p>
@@ -730,14 +774,22 @@ done</code></pre>
 <p>Later, we will create a cron backup script that will run automatically.</p>
 </div>
 </div>
-</div>
 <div class="sect2">
-<h3 id="_backup_databases">Backup Databases</h3>
+<h3 id="_ongoing_file_backup">Ongoing File Backup</h3>
+<div class="paragraph">
+<p>MOREMOREMORE</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_backup_wordpress_databases">Backup WordPress Databases</h2>
+<div class="sectionbody">
 <div class="paragraph">
 <p>Here we perform many of the same tasks only for databases.</p>
 </div>
-<div class="sect3">
-<h4 id="_assumptions_2">Assumptions</h4>
+<div class="sect2">
+<h3 id="_assumptions_2">Assumptions</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -755,8 +807,8 @@ done</code></pre>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_manual_first_run_2">Manual First Run</h4>
+<div class="sect2">
+<h3 id="_manual_first_run">Manual First Run</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -806,8 +858,8 @@ define('DB_PASSWORD', 'password');</pre>
 </ul>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_creating_a_scripted_run">Creating a Scripted Run</h4>
+<div class="sect2">
+<h3 id="_creating_a_scripted_run">Creating a Scripted Run</h3>
 <div class="paragraph">
 <p>The hardest part of this script is getting the database information from wp-config.php. A python script should do the trick.</p>
 </div>
@@ -870,7 +922,6 @@ for filename in thefiles:
     subprocess.call(['gzip', result_file])
 
 subprocess.call(['aws', 's3', 'sync', DUMPDIR, S3BUCKET, '--delete'])</code></pre>
-</div>
 </div>
 </div>
 </div>
@@ -1075,7 +1126,7 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-21 16:22:44 Central Standard Time
+Last updated 2017-01-10 20:21:07 Central Standard Time
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
