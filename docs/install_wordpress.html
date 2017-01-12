@@ -54,6 +54,7 @@
 <li><a href="#_already_initialized_sites">Already Initialized Sites</a></li>
 <li><a href="#_all_sites">All Sites</a></li>
 <li><a href="#_todo_sites">ToDo Sites</a></li>
+<li><a href="#_all_sites_intersection_with_s3_sites">All Sites Intersection With S3 Sites</a></li>
 <li><a href="#_perform_the_initial_git_and_sync_to_s3">Perform the Initial Git and Sync to S3</a></li>
 </ul>
 </li>
@@ -78,9 +79,15 @@
 <li><a href="#_core">Core</a></li>
 </ul>
 </li>
-<li><a href="#_scripted_use_of_wp_cli">Scripted Use of WP-CLI</a></li>
+<li><a href="#_scripted_use_of_wp_cli">Scripted Use of WP-CLI</a>
+<ul class="sectlevel3">
+<li><a href="#_dry_run">Dry Run</a></li>
+<li><a href="#_automatic_update_with_wp_cli">Automatic Update with WP-CLI</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li><a href="#_cron_scripts">Cron Scripts</a></li>
 <li><a href="#_additional_references">Additional References</a></li>
 </ul>
 </div>
@@ -699,6 +706,35 @@ with open(file3, 'w') as f:
 </div>
 </div>
 <div class="sect3">
+<h4 id="_all_sites_intersection_with_s3_sites">All Sites Intersection With S3 Sites</h4>
+<div class="paragraph">
+<p>A list of sites that are available on the server and are also synced to S3 will be needed. The python script make_all_intersect_s3.py_ is piped to create the file <em>all_intersect_s3.txt</em>. Call it with <code>python make_all_intersect_s3.py &gt; all_intersect_s3.txt</code></p>
+</div>
+<div class="listingblock">
+<div class="title">make_all_intersect_s3.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+make_all_join_s3.py: Generates the set intersect to prints the file list.
+"""
+
+file1 = "s3ed_sites.txt"
+file2 = "all_sites.txt"
+
+
+with open(file1) as f:
+  done =  f.read().splitlines()
+
+with open(file2) as f:
+  all =  f.read().splitlines()
+
+intersect = set(all).intersection(done)
+for item in intersect:
+    print(item)</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
 <h4 id="_perform_the_initial_git_and_sync_to_s3">Perform the Initial Git and Sync to S3</h4>
 <div class="paragraph">
 <p>Now we use a bash script to control the flow and call various commands. The script is <em>init_git_then_s3.sh</em>. This file is called by <code>sudo ./init_git_then_s3.sh $(cat todo_sites.txt)</code></p>
@@ -763,10 +799,16 @@ done</code></pre>
 <p>View your repository bucket</p>
 </li>
 <li>
-<p>Dig through the repositories to verify.</p>
+<p>Dig through the repositories to verify</p>
 </li>
 </ul>
 </div>
+</li>
+<li>
+<p>Update <code>python make_s3ed.py  &gt; s3ed_sites.txt</code></p>
+</li>
+<li>
+<p><code>python make_all_intersect_s3.py &gt; all_intersect_s3.txt</code></p>
 </li>
 </ul>
 </div>
@@ -776,8 +818,49 @@ done</code></pre>
 </div>
 <div class="sect2">
 <h3 id="_ongoing_file_backup">Ongoing File Backup</h3>
-<div class="paragraph">
-<p>MOREMOREMORE</p>
+<div class="ulist">
+<ul>
+<li>
+<p>Perform an initializing run to capture any new sites that have been added.</p>
+</li>
+<li>
+<p><code>python make_s3ed.py  &gt; s3ed_sites.txt</code></p>
+</li>
+<li>
+<p><code>ls /var/www &gt; all_sites.txt</code></p>
+</li>
+<li>
+<p><code>python make_all_intersect_s3.py &gt; all_intersect_s3.txt</code></p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">regular_git_then_s3.sh</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-bash" data-lang="bash">#!/bin/bash
+#
+# This script must be run as sudo.
+# This script expects site names input from a file.
+# Call this script thusly:
+# sudo ./regular_git_then_s3.sh $(cat all_intersect_s3.txt)
+
+# Some variables that you may choose to change.
+SITEDIR="/var/www/"
+REPOSDIR="/var/local/repos/"
+S3BUCKET="ggis-repos"
+
+SITES="$@"
+for f in $SITES
+do
+    cd $SITEDIR$f
+    git add --all
+    git commit -m "Regular commit of site"
+    cd $REPOSDIR$f
+    git pull
+    aws s3 sync $REPOSDIR$f s3://$S3BUCKET/$f --delete
+
+done</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -866,9 +949,10 @@ define('DB_PASSWORD', 'password');</pre>
 <div class="ulist">
 <ul>
 <li>
-<p><code>find /var/www -name wp-config.php -print</code>
-find /var/www -name wp-config.php  | xargs grep DB_NAME
-find /var/www -name wp-config.php  | xargs grep "DB_NAME.<strong>'(.</strong>)'"</p>
+<p>Find all files named _wp-config.php, <code>find /var/www -name wp-config.php -print</code></p>
+</li>
+<li>
+<p>Use that find command piped into the python script. <code>sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py</code></p>
 </li>
 </ul>
 </div>
@@ -1038,7 +1122,7 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <p>Return list of theme updates available, <code>sudo wp theme update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/</code></p>
 </li>
 <li>
-<p>Update all plugins, <code>sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/</code></p>
+<p>Update all themes, <code>sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/</code></p>
 </li>
 <li>
 <p>Chown files back to www-data, <code>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</code></p>
@@ -1051,13 +1135,13 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <div class="ulist">
 <ul>
 <li>
-<p>Check for core updates, <code>wp core check-update</code></p>
+<p>Check for core updates, <code>sudo wp core check-update --allow-root --path=/var/www/tosamakers.com/html/</code></p>
 </li>
 <li>
-<p>Update the core, <code>sudo wp core update --allow-root</code></p>
+<p>Update the core, <code>sudo wp core update --allow-root --path=/var/www/tosamakers.com/html/</code></p>
 </li>
 <li>
-<p>Update the database, <code>sudo wp core update-db --allow-root</code></p>
+<p>Update the database, <code>sudo wp core update-db --allow-root --path=/var/www/tosamakers.com/html/</code></p>
 </li>
 <li>
 <p>Chown files back to www-data, <code>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</code></p>
@@ -1069,8 +1153,82 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <div class="sect2">
 <h3 id="_scripted_use_of_wp_cli">Scripted Use of WP-CLI</h3>
 <div class="paragraph">
-<p>sudo chown -R www-data:www-data /var/www/tosamakers.com/html/</p>
+<p>WP-CLI greatly eases updating of many WordPress sites. Scripts make it even easier. First, we run a dryrun script. If you notice any problems or anything that needs special attention in the dry run, <strong>handle it manually</strong>. For those sites not requiring special attention, we then run a full update script.</p>
 </div>
+<div class="sect3">
+<h4 id="_dry_run">Dry Run</h4>
+<div class="paragraph">
+<p>Execute the dry run script to determine what needs to be updated and whether any special attention (via unexpected messages) should be given to a site. Call this script via <code>sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress_dryrun.py</code>.</p>
+</div>
+<div class="listingblock">
+<div class="title">update_wordpress_dryrun.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+update_wordpress_dryrun.py: Dry runs updates on WordPress installations. The WordPress installation paths are passed via argument pipe.
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress_dryrun.py
+"""
+
+import sys
+import subprocess
+
+thefiles = sys.argv[1:]
+
+for filepath in thefiles:
+    print("----------")
+    print("Updates available on " + filepath[:-13])
+    subprocess.call('wp plugin update --allow-root --all --dry-run --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp theme update --allow-root --all --dry-run --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core check-update --allow-root --path=' + filepath[:-13], shell=True)
+    print("----------")</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_automatic_update_with_wp_cli">Automatic Update with WP-CLI</h4>
+<div class="paragraph">
+<p>If any sites require special attention, handle them manually; otherwise, proceed to updating the sites via script. <code>sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress.py</code></p>
+</div>
+<div class="listingblock">
+<div class="title">update_wordpress.py</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-python" data-lang="python">#!/bin/python
+"""
+update_wordpress: Runs updates on WordPress installations. The WordPress installation paths are passed
+via argument pipe. After completion, it changes ownership back to www-data
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress.py
+"""
+
+import sys
+import subprocess
+
+thefiles = sys.argv[1:]
+
+for filepath in thefiles:
+    print("----------")
+    print("Updates available on " + filepath[:-13])
+    subprocess.call('wp plugin update --allow-root --all --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp theme update --allow-root --all --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core update --allow-root --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core update-db --allow-root --path=' + filepath[:-13], shell=True)
+    subprocess.call('chown -R www-data:www-data ' + filepath[:-13], shell=True)
+    print("----------")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Assuming the special attention sites have already been handled manually, this should run to completion without issue.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cron_scripts">Cron Scripts</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Next up</p>
 </div>
 </div>
 </div>
@@ -1080,25 +1238,25 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <div class="ulist">
 <ul>
 <li>
-<p>[Apache2](<a href="https://help.ubuntu.com/16.04/serverguide/httpd.html" class="bare">https://help.ubuntu.com/16.04/serverguide/httpd.html</a>)</p>
+<p><a href="https://help.ubuntu.com/16.04/serverguide/httpd.html">Apache2</a></p>
 </li>
 <li>
-<p>[MySQL](<a href="https://help.ubuntu.com/16.04/serverguide/mysql.html" class="bare">https://help.ubuntu.com/16.04/serverguide/mysql.html</a>)</p>
+<p><a href="https://help.ubuntu.com/16.04/serverguide/mysql.html">MySQL</a></p>
 </li>
 <li>
-<p>[PHP](<a href="https://secure.php.net/" class="bare">https://secure.php.net/</a>)</p>
+<p><a href="https://secure.php.net/">PHP</a></p>
 </li>
 <li>
-<p>[phpMyAdmin](<a href="https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html" class="bare">https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html</a>)</p>
+<p><a href="https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html">phpMyAdmin</a></p>
 </li>
 <li>
-<p>[WordPress](<a href="https://codex.wordpress.org/Installing_WordPress" class="bare">https://codex.wordpress.org/Installing_WordPress</a>)</p>
+<p><a href="https://codex.wordpress.org/Installing_WordPress">WordPress</a></p>
 </li>
 <li>
-<p>[DigitalOcean mod_rewrite](<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04</a>)</p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04">DigitalOcean mod_rewrite</a></p>
 </li>
 <li>
-<p>[DigitalOcean Apache2](<a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts</a>)</p>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts">DigitalOcean Apache2</a></p>
 </li>
 <li>
 <p><a href="https://bash.cyberciti.biz/guide/Main_Page" class="bare">https://bash.cyberciti.biz/guide/Main_Page</a></p>
@@ -1126,7 +1284,7 @@ Running the sudo command with wp-cli will cause wp-cli to complain. Instead of s
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-01-10 20:21:07 Central Standard Time
+Last updated 2017-01-11 19:30:27 Central Standard Time
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

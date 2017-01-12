@@ -295,6 +295,34 @@ with open(file3, 'w') as f:
 
 ----
 
+==== All Sites Intersection With S3 Sites
+
+A list of sites that are available on the server and are also synced to S3 will be needed. The python script make_all_intersect_s3.py_ is piped to create the file _all_intersect_s3.txt_. Call it with `python make_all_intersect_s3.py > all_intersect_s3.txt`
+
+[source, python]
+.make_all_intersect_s3.py
+----
+#!/bin/python
+"""
+make_all_join_s3.py: Generates the set intersect to prints the file list.
+"""
+
+file1 = "s3ed_sites.txt"
+file2 = "all_sites.txt"
+
+
+with open(file1) as f:
+  done =  f.read().splitlines()
+
+with open(file2) as f:
+  all =  f.read().splitlines()
+
+intersect = set(all).intersection(done)
+for item in intersect:
+    print(item)
+----
+
+
 ==== Perform the Initial Git and Sync to S3
 
 Now we use a bash script to control the flow and call various commands. The script is _init_git_then_s3.sh_. This file is called by `sudo ./init_git_then_s3.sh $(cat todo_sites.txt)`
@@ -338,15 +366,48 @@ Let's put it all together.
 * Manually verify that all that your sites are now synced to S3.
 ** https://console.aws.amazon.com/s3
 ** View your repository bucket
-** Dig through the repositories to verify.
+** Dig through the repositories to verify
+* Update `python make_s3ed.py  > s3ed_sites.txt`
+* `python make_all_intersect_s3.py > all_intersect_s3.txt`
+
 
 Later, we will create a cron backup script that will run automatically.
 
 
 === Ongoing File Backup
 
-MOREMOREMORE
+* Perform an initializing run to capture any new sites that have been added.
+* `python make_s3ed.py  > s3ed_sites.txt`
+* `ls /var/www > all_sites.txt`
+* `python make_all_intersect_s3.py > all_intersect_s3.txt`
 
+[source, bash]
+.regular_git_then_s3.sh
+----
+#!/bin/bash
+#
+# This script must be run as sudo.
+# This script expects site names input from a file.
+# Call this script thusly:
+# sudo ./regular_git_then_s3.sh $(cat all_intersect_s3.txt)
+
+# Some variables that you may choose to change.
+SITEDIR="/var/www/"
+REPOSDIR="/var/local/repos/"
+S3BUCKET="ggis-repos"
+
+SITES="$@"
+for f in $SITES
+do
+    cd $SITEDIR$f
+    git add --all
+    git commit -m "Regular commit of site"
+    cd $REPOSDIR$f
+    git pull
+    aws s3 sync $REPOSDIR$f s3://$S3BUCKET/$f --delete
+
+done
+----
 
 == Backup WordPress Databases
 
@@ -386,9 +447,8 @@ define('DB_PASSWORD', 'password');
 
 The hardest part of this script is getting the database information from wp-config.php. A python script should do the trick.
 
-* `find /var/www -name wp-config.php -print`
-find /var/www -name wp-config.php  | xargs grep DB_NAME
-find /var/www -name wp-config.php  | xargs grep "DB_NAME.*'(.*)'"
+* Find all files named _wp-config.php, `find /var/www -name wp-config.php -print`
+* Use that find command piped into the python script. `sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py`
 
 [source, python]
 .mysql2s3.py
@@ -483,34 +543,98 @@ NOTE: Running the sudo command with wp-cli will cause wp-cli to complain. Instea
 ==== Themes
 
 * Return list of theme updates available, `sudo wp theme update --allow-root --all --dry-run --path=/var/www/tosamakers.com/html/`
-* Update all plugins, `sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/`
+* Update all themes, `sudo wp theme update --allow-root --all --path=/var/www/tosamakers.com/html/`
 * Chown files back to www-data, `sudo chown -R www-data:www-data /var/www/tosamakers.com/html/`
 
 ==== Core
 
-* Check for core updates, `wp core check-update`
-* Update the core, `sudo wp core update --allow-root`
-* Update the database, `sudo wp core update-db --allow-root`
+* Check for core updates, `sudo wp core check-update --allow-root --path=/var/www/tosamakers.com/html/`
+* Update the core, `sudo wp core update --allow-root --path=/var/www/tosamakers.com/html/`
+* Update the database, `sudo wp core update-db --allow-root --path=/var/www/tosamakers.com/html/`
 * Chown files back to www-data, `sudo chown -R www-data:www-data /var/www/tosamakers.com/html/`
 
 
 === Scripted Use of WP-CLI
 
-sudo chown -R www-data:www-data /var/www/tosamakers.com/html/
+WP-CLI greatly eases updating of many WordPress sites. Scripts make it even easier. First, we run a dryrun script. If you notice any problems or anything that needs special attention in the dry run, *handle it manually*. For those sites not requiring special attention, we then run a full update script.
+
+==== Dry Run
+
+Execute the dry run script to determine what needs to be updated and whether any special attention (via unexpected messages) should be given to a site. Call this script via `sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress_dryrun.py`.
+
+[source, python]
+.update_wordpress_dryrun.py
+----
+#!/bin/python
+"""
+update_wordpress_dryrun.py: Dry runs updates on WordPress installations. The WordPress installation paths are passed via argument pipe.
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress_dryrun.py
+"""
+
+import sys
+import subprocess
+
+thefiles = sys.argv[1:]
+
+for filepath in thefiles:
+    print("----------")
+    print("Updates available on " + filepath[:-13])
+    subprocess.call('wp plugin update --allow-root --all --dry-run --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp theme update --allow-root --all --dry-run --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core check-update --allow-root --path=' + filepath[:-13], shell=True)
+    print("----------")
+----
 
 
+==== Automatic Update with WP-CLI
 
+If any sites require special attention, handle them manually; otherwise, proceed to updating the sites via script. `sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress.py`
+
+[source, python]
+.update_wordpress.py
+----
+#!/bin/python
+"""
+update_wordpress: Runs updates on WordPress installations. The WordPress installation paths are passed
+via argument pipe. After completion, it changes ownership back to www-data
+How to call:
+sudo find /var/www -name wp-config.php  | xargs sudo python update_wordpress.py
+"""
+
+import sys
+import subprocess
+
+thefiles = sys.argv[1:]
+
+for filepath in thefiles:
+    print("----------")
+    print("Updates available on " + filepath[:-13])
+    subprocess.call('wp plugin update --allow-root --all --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp theme update --allow-root --all --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core update --allow-root --path=' + filepath[:-13], shell=True)
+    subprocess.call('wp core update-db --allow-root --path=' + filepath[:-13], shell=True)
+    subprocess.call('chown -R www-data:www-data ' + filepath[:-13], shell=True)
+    print("----------")
+
+----
+
+Assuming the special attention sites have already been handled manually, this should run to completion without issue.
+
+== Cron Scripts
+
+Next up
 
 
 == Additional References
 
-* [Apache2](https://help.ubuntu.com/16.04/serverguide/httpd.html)
-* [MySQL](https://help.ubuntu.com/16.04/serverguide/mysql.html)
-* [PHP](https://secure.php.net/)
-* [phpMyAdmin](https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html)
-* [WordPress](https://codex.wordpress.org/Installing_WordPress)
-* [DigitalOcean mod_rewrite](https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04)
-* [DigitalOcean Apache2](https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts)
+* https://help.ubuntu.com/16.04/serverguide/httpd.html[Apache2]
+* https://help.ubuntu.com/16.04/serverguide/mysql.html[MySQL]
+* https://secure.php.net/[PHP]
+* https://help.ubuntu.com/16.04/serverguide/phpmyadmin.html[phpMyAdmin]
+* https://codex.wordpress.org/Installing_WordPress[WordPress]
+* https://www.digitalocean.com/community/tutorials/how-to-set-up-mod_rewrite-for-apache-on-ubuntu-14-04[DigitalOcean mod_rewrite]
+* https://www.digitalocean.com/community/tutorials/how-to-set-up-apache-virtual-hosts-on-ubuntu-14-04-lts[DigitalOcean Apache2]
 * https://bash.cyberciti.biz/guide/Main_Page
 * http://regexr.com/
 * http://www.regular-expressions.info/refcapture.html
