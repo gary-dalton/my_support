@@ -380,6 +380,9 @@ Later, we will create a cron backup script that will run automatically.
 * `python make_s3ed.py  > s3ed_sites.txt`
 * `ls /var/www > all_sites.txt`
 * `python make_all_intersect_s3.py > all_intersect_s3.txt`
+* `sudo ./regular_git_then_s3.sh $(cat all_intersect_s3.txt)`
+** this script is listed below
+* Verify on S3 that everything worked as planned
 
 [source, bash]
 .regular_git_then_s3.sh
@@ -449,6 +452,7 @@ The hardest part of this script is getting the database information from wp-conf
 
 * Find all files named _wp-config.php, `find /var/www -name wp-config.php -print`
 * Use that find command piped into the python script. `sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py`
+** the script is listed below
 
 [source, python]
 .mysql2s3.py

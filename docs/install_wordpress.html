@@ -832,6 +832,19 @@ done</code></pre>
 <li>
 <p><code>python make_all_intersect_s3.py &gt; all_intersect_s3.txt</code></p>
 </li>
+<li>
+<p><code>sudo ./regular_git_then_s3.sh $(cat all_intersect_s3.txt)</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>this script is listed below</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Verify on S3 that everything worked as planned</p>
+</li>
 </ul>
 </div>
 <div class="listingblock">
@@ -953,6 +966,13 @@ define('DB_PASSWORD', 'password');</pre>
 </li>
 <li>
 <p>Use that find command piped into the python script. <code>sudo find /var/www -name wp-config.php  | xargs sudo python mysql2s3.py</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>the script is listed below</p>
+</li>
+</ul>
+</div>
 </li>
 </ul>
 </div>
@@ -1284,7 +1304,7 @@ for filepath in thefiles:
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-01-11 19:30:27 Central Standard Time
+Last updated 2017-02-01 20:09:06 Central Standard Time
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
