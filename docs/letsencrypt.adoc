@@ -226,7 +226,7 @@ Before reloading the configurations or restarting Apache, it is wise to check th
 === Renewal on Apache System
 
 * `sudo letsencrypt renew --dry-run --agree-tos`
-* MORE TO COME
+* Assuming success, `sudo letsencrypt renew --agree-tos`
 
 
 == Using certbot-auto
@@ -240,31 +240,44 @@ Certbot-auto is for those systems which do not have a certbot package. The comma
 
 ----
 new certificate deployed with reload of apache server; fullchain is
-/etc/letsencrypt/live/secure.npexchange.org/fullchain.pem
+/etc/letsencrypt/live/yourdomain.com/fullchain.pem
 ----
 
 
-<VirtualHost *:80>
-        ServerName
-        ServerAdmin gary@gruffgoat.com
+== Miscellaneaus Certificate Commands
 
-        # ---- Configure WSGI Listener(s) ----
-        # This assumes you installed to /var/www and strictly followed the
-        # installation instructions. Modify as needed.
-        #
-        # You may also need to modify the twenty47.wgsi file
+=== View and Test Full Certificate Information
 
-        WSGIDaemonProcess  twenty47 user=www-data group=www-data threads=5
-        WSGIScriptAlias / /var/www/Twenty47/twenty47.wsgi
+`https://www.ssllabs.com/ssltest/analyze.html?d=yourdomain.com`
 
-        <Directory /var/www/Twenty47/twenty47>
-                WSGIProcessGroup twenty47
-                WSGIApplicationGroup %{GLOBAL}
-                Order deny,allow
-                Allow from all
-        </Directory>
+=== View Full Certificate Information
 
-</VirtualHost>
+`sudo openssl x509 -noout -text -in /etc/letsencrypt/live/yourdomain.com/cert.pem`
+
+=== View Expiration Date
+
+`echo | openssl s_client -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -dates`
+
+or
+
+`sudo openssl x509 -noout -dates -in /etc/letsencrypt/live/yourdomain.com/cert.pem`
+
+=== View Common Name (top issued domain)
+
+`echo | openssl s_client -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -subject`
+
+or
+
+`sudo openssl x509 -noout -subject -in /etc/letsencrypt/live/yourdomain.com/cert.pem`
+
+=== View Alternative Names (other issued domains)
+
+`echo | openssl s_client -connect yourdomain.com:443 2>/dev/null | openssl x509 -noout -text | grep DNS`
+
+or
+
+`sudo openssl x509 -noout -text -in /etc/letsencrypt/live/yourdomain.com/cert.pem |grep DNS`
+
 
 
 == Conclusion

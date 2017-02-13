@@ -48,6 +48,15 @@
 <li><a href="#_renewal">Renewal</a></li>
 </ul>
 </li>
+<li><a href="#_miscellaneaus_certificate_commands">Miscellaneaus Certificate Commands</a>
+<ul class="sectlevel2">
+<li><a href="#_view_and_test_full_certificate_information">View and Test Full Certificate Information</a></li>
+<li><a href="#_view_full_certificate_information">View Full Certificate Information</a></li>
+<li><a href="#_view_expiration_date">View Expiration Date</a></li>
+<li><a href="#_view_common_name_top_issued_domain">View Common Name (top issued domain)</a></li>
+<li><a href="#_view_alternative_names_other_issued_domains">View Alternative Names (other issued domains)</a></li>
+</ul>
+</li>
 <li><a href="#_conclusion">Conclusion</a></li>
 </ul>
 </div>
@@ -383,7 +392,7 @@ LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b" vhost_common
 <p><code>sudo letsencrypt renew --dry-run --agree-tos</code></p>
 </li>
 <li>
-<p>MORE TO COME</p>
+<p>Assuming success, <code>sudo letsencrypt renew --agree-tos</code></p>
 </li>
 </ul>
 </div>
@@ -411,41 +420,61 @@ LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b" vhost_common
 <div class="listingblock">
 <div class="content">
 <pre>new certificate deployed with reload of apache server; fullchain is
-/etc/letsencrypt/live/secure.npexchange.org/fullchain.pem</pre>
+/etc/letsencrypt/live/yourdomain.com/fullchain.pem</pre>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_miscellaneaus_certificate_commands">Miscellaneaus Certificate Commands</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_view_and_test_full_certificate_information">View and Test Full Certificate Information</h3>
+<div class="paragraph">
+<p><code><a href="https://www.ssllabs.com/ssltest/analyze.html?d=yourdomain.com" class="bare">https://www.ssllabs.com/ssltest/analyze.html?d=yourdomain.com</a></code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_view_full_certificate_information">View Full Certificate Information</h3>
+<div class="paragraph">
+<p><code>sudo openssl x509 -noout -text -in /etc/letsencrypt/live/yourdomain.com/cert.pem</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_view_expiration_date">View Expiration Date</h3>
+<div class="paragraph">
+<p><code>echo | openssl s_client -connect yourdomain.com:443 2&gt;/dev/null | openssl x509 -noout -dates</code></p>
 </div>
 <div class="paragraph">
-<p>&lt;VirtualHost *:80&gt;
-        ServerName
-        ServerAdmin <a href="mailto:gary@gruffgoat.com">gary@gruffgoat.com</a></p>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre># ---- Configure WSGI Listener(s) ----
-# This assumes you installed to /var/www and strictly followed the
-# installation instructions. Modify as needed.
-#
-# You may also need to modify the twenty47.wgsi file</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>WSGIDaemonProcess  twenty47 user=www-data group=www-data threads=5
-WSGIScriptAlias / /var/www/Twenty47/twenty47.wsgi</pre>
-</div>
-</div>
-<div class="literalblock">
-<div class="content">
-<pre>&lt;Directory /var/www/Twenty47/twenty47&gt;
-        WSGIProcessGroup twenty47
-        WSGIApplicationGroup %{GLOBAL}
-        Order deny,allow
-        Allow from all
-&lt;/Directory&gt;</pre>
-</div>
+<p>or</p>
 </div>
 <div class="paragraph">
-<p>&lt;/VirtualHost&gt;</p>
+<p><code>sudo openssl x509 -noout -dates -in /etc/letsencrypt/live/yourdomain.com/cert.pem</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_view_common_name_top_issued_domain">View Common Name (top issued domain)</h3>
+<div class="paragraph">
+<p><code>echo | openssl s_client -connect yourdomain.com:443 2&gt;/dev/null | openssl x509 -noout -subject</code></p>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="paragraph">
+<p><code>sudo openssl x509 -noout -subject -in /etc/letsencrypt/live/yourdomain.com/cert.pem</code></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_view_alternative_names_other_issued_domains">View Alternative Names (other issued domains)</h3>
+<div class="paragraph">
+<p><code>echo | openssl s_client -connect yourdomain.com:443 2&gt;/dev/null | openssl x509 -noout -text | grep DNS</code></p>
+</div>
+<div class="paragraph">
+<p>or</p>
+</div>
+<div class="paragraph">
+<p><code>sudo openssl x509 -noout -text -in /etc/letsencrypt/live/yourdomain.com/cert.pem |grep DNS</code></p>
 </div>
 </div>
 </div>
@@ -462,7 +491,7 @@ WSGIScriptAlias / /var/www/Twenty47/twenty47.wsgi</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2016-12-19 18:01:41 Central Standard Time
+Last updated 2017-02-13 11:42:30 Central Standard Time
 </div>
 </div>
 </body>

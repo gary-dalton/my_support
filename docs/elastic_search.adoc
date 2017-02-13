@@ -24,6 +24,10 @@ link:index.html[My Support] | https://gary-dalton.github.io/[Home]
 
 https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
 
+== NOTICE
+
+WARNING: I have disabled the Ngninx reverse proxy. This allows easy update of certificate under letsencrypt and makes the site unavailable. to re-enable, the domain must be removed from the general server and the kibana config must be file linked.
+
 == Requirements
 
 A working Ubuntu 16.04 server.
