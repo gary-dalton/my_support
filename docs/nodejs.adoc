@@ -1,23 +1,24 @@
 = Node.js on Ubuntu 16.04
 Gary Dalton <https://github.com/gary-dalton>
-:description: EasyRTC OpenSource is: 1) A browser client library written in JavaScript. This client handles the signaling and to a large extent insulates applications from ongoing changes in the WebRTC api. 2) A signaling server based on Node.js. Together, these two components will let you write a simple video conferencing application, or a file sharing application, etc in just a few lines of simple code.
+:description: Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine. Node.js uses an event-driven, non-blocking I/O model that makes it lightweight and efficient. Node.js' package ecosystem, npm, is the largest ecosystem of open source libraries in the world.
 :revnumber: 1.0
 :revdate: 26 February 2017
 :license: Creative Commons BY-SA
 :homepage: https://gary-dalton.github.io/
 :githubuser: gary-dalton
-:githubrepo: RaspberryPi-projects
-:githubbranch: gh-pages
+:githubrepo: my_support
+:githubbranch: master
 :icons: font
 :toc: left
 :toclevels: 4
 :source-highlighter: highlightjs
 :css: stylesheets/stylesheet.css
 :linkcss:
-:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets rpi_nodejs.adoc
-:keywords: rpi, node.js, guide, iot, web, WebRTC, video, peer, easyrtc
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets nodejs.adoc
+:keywords: ubuntu, node.js, guide, iot, web
 
-link:index.html[Raspberry Pi Projects] | https://gary-dalton.github.io/[Home]
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
 
 {description}
 
