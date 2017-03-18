@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="stylesheets/github.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
 <h1>Polymer</h1>
 <div class="details">
@@ -21,8 +21,16 @@
 <span id="revnumber">version 1.0,</span>
 <span id="revdate">18 March 2017</span>
 </div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_install">Install</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
 <div class="paragraph">
 <p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
 </div>
@@ -36,10 +44,62 @@
 <p>Polymer is a JavaScript library that helps you create custom reusable HTML elements, and use them to build performant, maintainable apps. See <a href="https://www.polymer-project.org/2.0/start/" class="bare">https://www.polymer-project.org/2.0/start/</a></p>
 </div>
 </div>
+</div>
+<div class="sect1">
+<h2 id="_install">Install</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo npm install -g polymer-cli@next</code></p>
+</li>
+<li>
+<p><code>sudo npm install -g bower</code></p>
+</li>
+<li>
+<p><code>cd /var/nodes</code></p>
+</li>
+<li>
+<p><code>sudo mkdir polymer-test</code></p>
+</li>
+<li>
+<p><code>sudo chown -R user:user polymer-test</code></p>
+</li>
+<li>
+<p><code>cd polymer-test</code></p>
+</li>
+<li>
+<p><code>polymer init</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Select <em>polymer-2-application</em></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Serve the test, <code>polymer serve</code></p>
+</li>
+<li>
+<p>Visit the test at <a href="http://127.0.0.1:8081" class="bare">http://127.0.0.1:8081</a></p>
+<div class="ulist">
+<ul>
+<li>
+<p>It should display someting like <em>Hello polymer-test-app</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-03-18 15:39:15 CDT
+Last updated 2017-03-18 16:25:06 CDT
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">

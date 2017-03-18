@@ -25,3 +25,18 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 
 
 Polymer is a JavaScript library that helps you create custom reusable HTML elements, and use them to build performant, maintainable apps. See https://www.polymer-project.org/2.0/start/
+
+== Install
+
+* `sudo npm install -g polymer-cli@next`
+* `sudo npm install -g bower`
+* `cd /var/nodes`
+* `sudo mkdir polymer-test`
+* `sudo chown -R user:user polymer-test`
+* `cd polymer-test`
+* `polymer init`
+** Select _polymer-2-application_
+
+* Serve the test, `polymer serve`
+* Visit the test at http://127.0.0.1:8081
+** It should display someting like _Hello polymer-test-app_
