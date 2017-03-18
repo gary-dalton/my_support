@@ -37,6 +37,8 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 
 * link:elastic_search.html[Elasticsearch]
 * link:install_wordpress.html[Install and Maintain WordPress]
+* link:couton.html[Crouton on a Chromebook]
+* link:aciidoctor.html[AsciiDoctor]
 
 
 == Obsolete

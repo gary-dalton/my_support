@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.5">
+<meta name="description" content="How to run an Ubuntu desktop on ChromeOS">
+<meta name="keywords" content="crouton, ubuntu, chromebook, mount, guide">
+<meta name="author" content="Gary Dalton">
+<title>Crouton on a Chromebook</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Crouton on a Chromebook</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">18 March 2017</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_developer_mode">Developer Mode</a></li>
+<li><a href="#_install_crouton">Install Crouton</a></li>
+<li><a href="#_references">References</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>How to run an Ubuntu desktop on ChromeOS</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+All of these procedures work on an ASUS C200 Chromebook. Some steps may not work for all devices.
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_developer_mode">Developer Mode</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>from <a href="https://www.chromium.org/a/chromium.org/dev/chromium-os/developer-information-for-chrome-os-devices/generic" class="bare">https://www.chromium.org/a/chromium.org/dev/chromium-os/developer-information-for-chrome-os-devices/generic</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Invoke Recovery Mode with <code>ESC + REFRESH and tap POWER</code></p>
+</li>
+<li>
+<p>Enter Developer Mode from the Recovery screen by pressing <code>CTRL-D</code></p>
+</li>
+<li>
+<p>Confirm Developer Mode and the chromebook will start into Developer Mode.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The initial conversion Developer Mode might take a bit. Now each time you reboot the chromebook, you will need to press <code>CTRL-D</code> to enter Developer Mode.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_crouton">Install Crouton</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>from <a href="https://github.com/dnschneid/crouton" class="bare">https://github.com/dnschneid/crouton</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Install the Chrome browser extension from <a href="https://goo.gl/OVQOEt" class="bare">https://goo.gl/OVQOEt</a>.</p>
+</li>
+<li>
+<p>Download the latest version of crouton from <a href="https://goo.gl/fd3zc" class="bare">https://goo.gl/fd3zc</a>.</p>
+</li>
+<li>
+<p>Open a <em>crosh</em> shell with <code>CTRL + ALT + T</code></p>
+</li>
+<li>
+<p>Enter <code>shell</code></p>
+</li>
+<li>
+<p><code>sudo sh ~/Downloads/crouton -t xiwi,xfce</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Answer the prompts and wait for the install to complete</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>Start your full Linux desktop with <code>sudo startxfce4</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://github.com/dnschneid/crouton/wiki/How-to-mount-network-shares-on-Chromebook-(sshfs,-cifs,-nfs-etc" class="bare">https://github.com/dnschneid/crouton/wiki/How-to-mount-network-shares-on-Chromebook-(sshfs,-cifs,-nfs-etc</a>)</p>
+</li>
+<li>
+<p><a href="https://github.com/dnschneid/crouton/issues/1810" class="bare">https://github.com/dnschneid/crouton/issues/1810</a></p>
+</li>
+<li>
+<p><a href="https://github.com/dnschneid/crouton/wiki/Sharing-files-and-folders" class="bare">https://github.com/dnschneid/crouton/wiki/Sharing-files-and-folders</a></p>
+</li>
+<li>
+<p><a href="https://github.com/divx118/cifs/blob/master/README.md" class="bare">https://github.com/divx118/cifs/blob/master/README.md</a></p>
+</li>
+<li>
+<p><a href="https://github.com/dnschneid/crouton/wiki/crouton-in-a-Chromium-OS-window-(xiwi" class="bare">https://github.com/dnschneid/crouton/wiki/crouton-in-a-Chromium-OS-window-(xiwi</a>)</p>
+</li>
+<li>
+<p><a href="https://superuser.com/questions/177218/how-to-start-gui-linux-programs-from-the-command-line-but-separate-from-the-com" class="bare">https://superuser.com/questions/177218/how-to-start-gui-linux-programs-from-the-command-line-but-separate-from-the-com</a></p>
+</li>
+<li>
+<p><a href="https://github.com/dnschneid/crouton" class="bare">https://github.com/dnschneid/crouton</a></p>
+</li>
+<li>
+<p><a href="https://support.google.com/chromebook/answer/183101" class="bare">https://support.google.com/chromebook/answer/183101</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2017-03-18 11:10:28 CDT
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>

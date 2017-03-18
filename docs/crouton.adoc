@@ -61,3 +61,6 @@ from https://github.com/dnschneid/crouton
 * https://github.com/dnschneid/crouton/wiki/Sharing-files-and-folders
 * https://github.com/divx118/cifs/blob/master/README.md
 * https://github.com/dnschneid/crouton/wiki/crouton-in-a-Chromium-OS-window-(xiwi)
+* https://superuser.com/questions/177218/how-to-start-gui-linux-programs-from-the-command-line-but-separate-from-the-com
+* https://github.com/dnschneid/crouton
+* https://support.google.com/chromebook/answer/183101
