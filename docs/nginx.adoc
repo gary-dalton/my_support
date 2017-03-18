@@ -1,0 +1,211 @@
+= NGINX on Ubuntu 16.04
+Gary Dalton <https://github.com/gary-dalton>
+:description: NGINX is a free, open-source, high-performance HTTP server and reverse proxy, as well as an IMAP/POP3 proxy server. NGINX is known for its high performance, stability, rich feature set, simple configuration, and low resource consumption.
+:revnumber: 1.0
+:revdate: 27 February 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: RaspberryPi-projects
+:githubbranch: gh-pages
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets nginx.adoc
+:keywords: NGINX, server, iot, web, SSL
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== Install NGINX
+
+* Update sources and upgrade packages
+** `sudo apt update`
+** `sudo apt upgrade`
+* `sudo install nginx`
+
+* Verify `curl http://localhost`
+** You should see some html output that includes, _Welcome to nginx!_
+
+
+== Add SSL Support
+
+=== Generate a Certificate
+
+* `sudo openssl genpkey -algorithm RSA -out /etc/ssl/private/nginx-selfsigned.key -pkeyopt rsa_keygen_bits:2048`
+* `openssl req -new -x509 -key /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -days 365`
+* Generate a Perfect Forward Secrecy key
+** `sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096`
+* `chmod 400 /etc/ssl/private/*`
+
+
+=== Configure NGINX
+
+==== SSL parameters
+
+Create a snippet to include in our configurations
+
+./etc/nginx/snippets/ssl-params.conf
+----
+# My encryption key and certificate
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+
+# from https://cipherli.st/
+# and https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_prefer_server_ciphers on;
+ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+ssl_ecdh_curve secp384r1;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+# Disable preloading HSTS for now.  You can use the commented out header line
+# that includes the "preload" directive if you understand the implications.
+#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
+#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+add_header X-Frame-Options DENY;
+add_header X-Content-Type-Options nosniff;
+
+ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+----
+
+==== Edit the configuration
+
+This assumes that the default configuration is being used.
+
+* Backup the original, `sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak`
+* Edit the configuration, `sudo nano /etc/nginx/sites-available/default`
+** When complete it should look similar to the below configuration.
+
+NOTE: Change server_domain_or_IP to your domain or IP address.
+
+./etc/nginx/sites-available/default
+----
+# Default server configuration
+#
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name server_domain_or_IP;
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+
+    # SSL configuration
+
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    # include snippets/self-signed.conf;
+    include snippets/ssl-params.conf;
+
+    root /var/www/html;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+    }
+
+}
+
+----
+
+==== Test the configuration
+
+* `sudo nginx -t`
+* If you are using a self-signed certificate then you will receive an _ssl_stapling_ warnings. Your output should be similar to:
+
+```
+nginx: [warn] "ssl_stapling" ignored, issuer certificate not found
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+
+```
+
+==== Restart NGINX
+
+* `sudo systemctl restart nginx`
+* Browse to your domain or IP address
+* An self-signed certificate will cause a _not secure_ warning but proceed to your site.
+
+
+== Reverse Proxy
+
+This will work for both encrypted and unencrypted traffic.
+
+=== Node.js
+
+Add the following to within the server section of your site specific configuration.
+
+```
+server {
+    . . .
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+    .
+    .
+    .
+}
+```
+
+
+== Basic Auth
+
+=== Create Password File
+
+* Install apache2-utils, `sudo apt-get install apache2-utils`
+* Add the first user, `sudo htpasswd -c /etc/nginx/.htpasswd user1`
+** Enter the password when requested
+* Add additional users, `sudo htpasswd /etc/nginx/.htpasswd user2`
+** Enter the password when requested
+* View the file `sudo cat /etc/nginx/.htpasswd`
+
+=== Edit the Nginx Configuration
+
+This example uses Basic Auth for the full site. Add the following to within the server section of your site specific configuration.
+
+* `sudo nano /etc/nginx/sites-available/default`
+
+```
+server {
+    . . .
+    auth_basic           "Not Allowed";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+    .
+    .
+    .
+}
+```
+
+== References
+
+* https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04
+* https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+* https://cipherli.st/
+* https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04
+* https://www.nginx.com/resources/admin-guide/restricting-access-auth-basic/

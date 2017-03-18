@@ -1,0 +1,38 @@
+= Converting a Wiki to Static HTML
+Gary Dalton <https://github.com/gary-dalton>
+:description: Here we convert an old currently not updating WikiMedia wiki to a static HTML site. The site will then be hosted on GCP storage.
+:revnumber: 1.0
+:revdate: 13 March 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets wiki2static.adoc
+:keywords: wiki, static, gcp, web, wikimedia, html, cloud
+
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== Crawl the Pages
+
+The easiest method to convert all pages to HTML is to crawl the site and save the pages to HTML.
+
+`nohup wget --recursive --page-requisites --html-extension --convert-links --no-parent -R "*Special*" -R "*action=*" -R "*printable=*"  -R "*oldid=*" -R "*title=Talk:*" -R "*limit=*" "http://wiki.ggis.biz/index.php/Main_Page"`
+
+- from http://camwebb.info/blog/2012-12-20/
+
+== Store it to S3
+
+`sudo aws s3 sync wiki s3://rahu/wiki --delete`

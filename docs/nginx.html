@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="NGINX is a free, open-source, high-performance HTTP server and reverse proxy, as well as an IMAP/POP3 proxy server. NGINX is known for its high performance, stability, rich feature set, simple configuration, and low resource consumption.">
+<meta name="keywords" content="NGINX, server, iot, web, SSL">
+<meta name="author" content="Gary Dalton">
+<title>NGINX on Ubuntu 16.04</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>NGINX on Ubuntu 16.04</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">27 February 2017</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_install_nginx">Install NGINX</a></li>
+<li><a href="#_add_ssl_support">Add SSL Support</a>
+<ul class="sectlevel2">
+<li><a href="#_generate_a_certificate">Generate a Certificate</a></li>
+<li><a href="#_configure_nginx">Configure NGINX</a>
+<ul class="sectlevel3">
+<li><a href="#_ssl_parameters">SSL parameters</a></li>
+<li><a href="#_edit_the_configuration">Edit the configuration</a></li>
+<li><a href="#_test_the_configuration">Test the configuration</a></li>
+<li><a href="#_restart_nginx">Restart NGINX</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_reverse_proxy">Reverse Proxy</a>
+<ul class="sectlevel2">
+<li><a href="#_node_js">Node.js</a></li>
+</ul>
+</li>
+<li><a href="#_references">References</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>NGINX is a free, open-source, high-performance HTTP server and reverse proxy, as well as an IMAP/POP3 proxy server. NGINX is known for its high performance, stability, rich feature set, simple configuration, and low resource consumption.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/RaspberryPi-projects/tree/gh-pages">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_nginx">Install NGINX</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Update sources and upgrade packages</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo apt update</code></p>
+</li>
+<li>
+<p><code>sudo apt upgrade</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>sudo install nginx</code></p>
+</li>
+<li>
+<p>Verify <code>curl <a href="http://localhost" class="bare">http://localhost</a></code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>You should see some html output that includes, <em>Welcome to nginx!</em></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_add_ssl_support">Add SSL Support</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_generate_a_certificate">Generate a Certificate</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo openssl genpkey -algorithm RSA -out /etc/ssl/private/nginx-selfsigned.key -pkeyopt rsa_keygen_bits:2048</code></p>
+</li>
+<li>
+<p><code>openssl req -new -x509 -key /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt -days 365</code></p>
+</li>
+<li>
+<p>Generate a Perfect Forward Secrecy key</p>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 4096</code></p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p><code>chmod 400 /etc/ssl/private/*</code></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_configure_nginx">Configure NGINX</h3>
+<div class="sect3">
+<h4 id="_ssl_parameters">SSL parameters</h4>
+<div class="paragraph">
+<p>Create a snippet to include in our configurations</p>
+</div>
+<div class="listingblock">
+<div class="title">/etc/nginx/snippets/ssl-params.conf</div>
+<div class="content">
+<pre># My encryption key and certificate
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+
+# from https://cipherli.st/
+# and https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html
+ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+ssl_prefer_server_ciphers on;
+ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+ssl_ecdh_curve secp384r1;
+ssl_session_cache shared:SSL:10m;
+ssl_session_tickets off;
+ssl_stapling on;
+ssl_stapling_verify on;
+resolver 8.8.8.8 8.8.4.4 valid=300s;
+resolver_timeout 5s;
+# Disable preloading HSTS for now.  You can use the commented out header line
+# that includes the "preload" directive if you understand the implications.
+#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains; preload";
+#add_header Strict-Transport-Security "max-age=63072000; includeSubdomains";
+add_header X-Frame-Options DENY;
+add_header X-Content-Type-Options nosniff;
+
+ssl_dhparam /etc/ssl/certs/dhparam.pem;</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_edit_the_configuration">Edit the configuration</h4>
+<div class="paragraph">
+<p>This assumes that the default configuration is being used.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Backup the original, <code>sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/default.bak</code></p>
+</li>
+<li>
+<p>Edit the configuration, <code>sudo nano /etc/nginx/sites-available/default</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>When complete it should look similar to the below configuration.</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+Change server_domain_or_IP to your domain or IP address.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="title">/etc/nginx/sites-available/default</div>
+<div class="content">
+<pre># Default server configuration
+#
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name server_domain_or_IP;
+    return 302 https://$server_name$request_uri;
+}
+
+server {
+
+    # SSL configuration
+
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    # include snippets/self-signed.conf;
+    include snippets/ssl-params.conf;
+
+    root /var/www/html;
+
+    # Add index.php to the list if you are using PHP
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+    }
+
+}</pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_test_the_configuration">Test the configuration</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo nginx -t</code></p>
+</li>
+<li>
+<p>If you are using a self-signed certificate then you will receive an <em>ssl_stapling</em> warnings. Your output should be similar to:</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>nginx: [warn] "ssl_stapling" ignored, issuer certificate not found
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_restart_nginx">Restart NGINX</h4>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo systemctl restart nginx</code></p>
+</li>
+<li>
+<p>Browse to your domain or IP address</p>
+</li>
+<li>
+<p>An self-signed certificate will cause a <em>not secure</em> warning but proceed to your site.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reverse_proxy">Reverse Proxy</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>This will work for both encrypted and unencrypted traffic.</p>
+</div>
+<div class="sect2">
+<h3 id="_node_js">Node.js</h3>
+<div class="paragraph">
+<p>Add the following to within the server section of your site specific configuration.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlightjs highlight"><code>server {
+    .
+    .
+    .
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+    .
+    .
+    .
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04</a></p>
+</li>
+<li>
+<p><a href="https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html" class="bare">https://raymii.org/s/tutorials/Strong_SSL_Security_On_nginx.html</a></p>
+</li>
+<li>
+<p><a href="https://cipherli.st/" class="bare">https://cipherli.st/</a></p>
+</li>
+<li>
+<p><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-set-up-a-node-js-application-for-production-on-ubuntu-16-04</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2017-03-10 10:39:36 Central Standard Time
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>

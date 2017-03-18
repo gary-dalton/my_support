@@ -377,6 +377,9 @@ Later, we will create a cron backup script that will run automatically.
 === Ongoing File Backup
 
 * Perform an initializing run to capture any new sites that have been added.
+
+Then
+
 * `python make_s3ed.py  > s3ed_sites.txt`
 * `ls /var/www > all_sites.txt`
 * `python make_all_intersect_s3.py > all_intersect_s3.txt`

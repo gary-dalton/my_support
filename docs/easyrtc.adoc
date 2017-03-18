@@ -1,0 +1,73 @@
+= EasyRTC on Ubuntu 16.04
+Gary Dalton <https://github.com/gary-dalton>
+:description: EasyRTC OpenSource is: 1) A browser client library written in JavaScript. This client handles the signaling and to a large extent insulates applications from ongoing changes in the WebRTC api. 2) A signaling server based on Node.js. Together, these two components will let you write a simple video conferencing application, or a file sharing application, etc in just a few lines of simple code.
+:revnumber: 1.0
+:revdate: 26 February 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: RaspberryPi-projects
+:githubbranch: gh-pages
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets easyrtc.adoc
+:keywords:  node.js, guide, iot, web, WebRTC, video, peer, easyrtc
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== Install Node.js
+
+See link:nodejs.html[Node.js]
+
+
+== Install EasyRTC
+
+* `cd /var/nodes`
+* `sudo git clone https://github.com/priologic/easyrtc.git`
+* `cd easyrtc`
+* `sudo npm install`
+
+* `cd server_example`
+* `sudo npm install`
+
+* `cd /var/nodes`
+* `sudo chown -R www-data:www-data easyrtc`
+
+== Run Server Example
+
+* `cd /var/nodes/easyrtc/server_example`
+* `sudo -u www-data node server.js`
+
+== https
+
+https://www.sitepoint.com/how-to-use-ssltls-with-node-js/
+
+* https://github.com/webrtc/apprtc
+* https://cloud.google.com/sdk/docs/#deb
+
+* `cd /var/nodes`
+* `sudo git clone https://github.com/webrtc/apprtc.git`
+* `cd apprtc`
+* `sudo npm install`
+* `sudo -i`
+* `export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"`
+* `echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list`
+* `curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -`
+* `apt-get update && sudo apt-get install google-cloud-sdk`
+
+* `sudo npm install -g grunt`
+* `sudo apt install python-pip`
+* `sudo pip install requests`
+* `sudo grunt build`
+
+* `cd /var/nodes/apprtc/out/app_engine`
+* `/home/ubuntu/google-cloud-sdk/bin/dev_appserver.py ./out/app_engine`

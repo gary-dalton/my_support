@@ -1,0 +1,37 @@
+= Node.js on Ubuntu 16.04
+Gary Dalton <https://github.com/gary-dalton>
+:description: EasyRTC OpenSource is: 1) A browser client library written in JavaScript. This client handles the signaling and to a large extent insulates applications from ongoing changes in the WebRTC api. 2) A signaling server based on Node.js. Together, these two components will let you write a simple video conferencing application, or a file sharing application, etc in just a few lines of simple code.
+:revnumber: 1.0
+:revdate: 26 February 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: RaspberryPi-projects
+:githubbranch: gh-pages
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets rpi_nodejs.adoc
+:keywords: rpi, node.js, guide, iot, web, WebRTC, video, peer, easyrtc
+
+link:index.html[Raspberry Pi Projects] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== Install Node.js
+
+The binary packages for node come from https://github.com/nodesource/distributions#debinstall[NodeSource]. I choose to install the latest version which is v7.
+
+* `curl -sL https://deb.nodesource.com/setup_7.x | sudo -E bash -`
+* `sudo apt install nodejs`
+* `sudo apt install build-essential`
+
+Node is now installed but additional setup is needed to use it fully.
+
+* `sudo mkdir /var/nodes`
