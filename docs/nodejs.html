@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.5">
+<meta name="description" content="EasyRTC OpenSource is: 1) A browser client library written in JavaScript. This client handles the signaling and to a large extent insulates applications from ongoing changes in the WebRTC api. 2) A signaling server based on Node.js. Together, these two components will let you write a simple video conferencing application, or a file sharing application, etc in just a few lines of simple code.">
+<meta name="keywords" content="rpi, node.js, guide, iot, web, WebRTC, video, peer, easyrtc">
+<meta name="author" content="Gary Dalton">
+<title>Node.js on Ubuntu 16.04</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Node.js on Ubuntu 16.04</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">26 February 2017</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_install_node_js">Install Node.js</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">Raspberry Pi Projects</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>EasyRTC OpenSource is: 1) A browser client library written in JavaScript. This client handles the signaling and to a large extent insulates applications from ongoing changes in the WebRTC api. 2) A signaling server based on Node.js. Together, these two components will let you write a simple video conferencing application, or a file sharing application, etc in just a few lines of simple code.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/RaspberryPi-projects/tree/gh-pages">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_install_node_js">Install Node.js</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The binary packages for node come from <a href="https://github.com/nodesource/distributions#debinstall">NodeSource</a>. I choose to install the latest version which is v7.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>curl -sL <a href="https://deb.nodesource.com/setup_7.x" class="bare">https://deb.nodesource.com/setup_7.x</a> | sudo -E bash -</code></p>
+</li>
+<li>
+<p><code>sudo apt install nodejs</code></p>
+</li>
+<li>
+<p><code>sudo apt install build-essential</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Node is now installed but additional setup is needed to use it fully.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo mkdir /var/nodes</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2017-03-18 15:46:02 CDT
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>
