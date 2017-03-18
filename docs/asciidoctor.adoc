@@ -1,0 +1,33 @@
+= AsciiDoctor on Ubuntu
+Gary Dalton <https://github.com/gary-dalton>
+:description: Installing and using AsciiDoctor with Ubuntu
+:revnumber: 1.0
+:revdate: 20 July 2016
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets asciidoctor.adoc
+:keywords: asciidoctor, ubuntu, ruby, markdown, guide, install
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+== Install
+
+* Ruby `sudo apt install ruby`
+* `gem install asciidoctor`
+
+== Use
+
+`asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets asciidoctor.adoc`

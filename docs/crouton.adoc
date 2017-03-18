@@ -1,0 +1,24 @@
+= Crouton on a Chromebook
+Gary Dalton <https://github.com/gary-dalton>
+:description: How to run an Ubuntu desktop on ChromeOS
+:revnumber: 1.0
+:revdate: 18 March 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets install_wordpress.adoc
+:keywords: crouton, ubuntu, chromebook, mount, guide
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
