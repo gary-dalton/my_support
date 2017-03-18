@@ -31,3 +31,6 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 == Use
 
 `asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets asciidoctor.adoc`
+
+* `git config --global credential.helper cache`
+* `git config --global credential.helper 'cache --timeout=3600'`

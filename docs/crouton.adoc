@@ -14,7 +14,7 @@ Gary Dalton <https://github.com/gary-dalton>
 :source-highlighter: highlightjs
 :css: stylesheets/stylesheet.css
 :linkcss:
-:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets install_wordpress.adoc
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets crouton.adoc
 :keywords: crouton, ubuntu, chromebook, mount, guide
 
 link:index.html[My Support] | https://gary-dalton.github.io/[Home]
@@ -22,3 +22,42 @@ link:index.html[My Support] | https://gary-dalton.github.io/[Home]
 {description}
 
 https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+IMPORTANT: All of these procedures work on an ASUS C200 Chromebook. Some steps may not work for all devices.
+
+
+== Developer Mode
+
+from https://www.chromium.org/a/chromium.org/dev/chromium-os/developer-information-for-chrome-os-devices/generic
+
+* Invoke Recovery Mode with `ESC + REFRESH and tap POWER`
+* Enter Developer Mode from the Recovery screen by pressing `CTRL-D`
+* Confirm Developer Mode and the chromebook will start into Developer Mode.
+
+The initial conversion Developer Mode might take a bit. Now each time you reboot the chromebook, you will need to press `CTRL-D` to enter Developer Mode.
+
+== Install Crouton
+
+from https://github.com/dnschneid/crouton
+
+* Install the Chrome browser extension from https://goo.gl/OVQOEt.
+* Download the latest version of crouton from https://goo.gl/fd3zc.
+* Open a _crosh_ shell with `CTRL + ALT + T`
+* Enter `shell`
+* `sudo sh ~/Downloads/crouton -t xiwi,xfce`
+** Answer the prompts and wait for the install to complete
+* Start your full Linux desktop with `sudo startxfce4`
+
+
+
+
+
+
+== References
+
+* https://github.com/dnschneid/crouton/wiki/How-to-mount-network-shares-on-Chromebook-(sshfs,-cifs,-nfs-etc)
+* https://github.com/dnschneid/crouton/issues/1810
+* https://github.com/dnschneid/crouton/wiki/Sharing-files-and-folders
+* https://github.com/divx118/cifs/blob/master/README.md
+* https://github.com/dnschneid/crouton/wiki/crouton-in-a-Chromium-OS-window-(xiwi)
