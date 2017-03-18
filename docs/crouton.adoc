@@ -49,8 +49,36 @@ from https://github.com/dnschneid/crouton
 ** Answer the prompts and wait for the install to complete
 * Start your full Linux desktop with `sudo startxfce4`
 
+== Mount a SMB Share into Linux
 
+Chrome has an extension that finally makes it easy to mount SMB shares in ChromeOS. The problem comes when trying to share this mount into the Linux desktop.
 
+from https://github.com/divx118/cifs/blob/master/README.md
+
+* Open a _crosh_ shell with `CTRL + ALT + T`
+* Enter `shell`
+* `cd ~/Downloads`
+* `wget https://raw.githubusercontent.com/divx118/crouton-packages/master/change-kernel-flags`
+* `sudo sh ~/Downloads/change-kernel-flags`
+** This may be undone with `sudo sh ~/Downloads/change-kernel-flags -r`
+
+NOTE: The kernel flag setting must be redone after each ChromeOS update.
+
+* `cd /usr/local`
+* `sudo wget "https://raw.github.com/divx118/cifs/master/mountcifs.tar.gz"`
+* `sudo tar xvf mountcifs.tar.gz`
+* Edit the fstab, `sudo vi ./etc/fstab`
+** Mine looks like:
+
+----
+//192.168.123.135/Public        /media/removable/public smbfs   username=myuser,password=mypass,rw,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
+----
+
+=== Using the Mount
+
+* Start with `sudo mountcifs start`
+* Start you linux desktop
+* Stop with `sudo mountcifs stop`
 
 
 

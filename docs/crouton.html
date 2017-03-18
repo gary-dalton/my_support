@@ -26,6 +26,11 @@
 <ul class="sectlevel1">
 <li><a href="#_developer_mode">Developer Mode</a></li>
 <li><a href="#_install_crouton">Install Crouton</a></li>
+<li><a href="#_mount_a_smb_share_into_linux">Mount a SMB Share into Linux</a>
+<ul class="sectlevel2">
+<li><a href="#_using_the_mount">Using the Mount</a></li>
+</ul>
+</li>
 <li><a href="#_references">References</a></li>
 </ul>
 </div>
@@ -118,6 +123,99 @@ All of these procedures work on an ASUS C200 Chromebook. Some steps may not work
 </div>
 </div>
 <div class="sect1">
+<h2 id="_mount_a_smb_share_into_linux">Mount a SMB Share into Linux</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Chrome has an extension that finally makes it easy to mount SMB shares in ChromeOS. The problem comes when trying to share this mount into the Linux desktop.</p>
+</div>
+<div class="paragraph">
+<p>from <a href="https://github.com/divx118/cifs/blob/master/README.md" class="bare">https://github.com/divx118/cifs/blob/master/README.md</a></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Open a <em>crosh</em> shell with <code>CTRL + ALT + T</code></p>
+</li>
+<li>
+<p>Enter <code>shell</code></p>
+</li>
+<li>
+<p><code>cd ~/Downloads</code></p>
+</li>
+<li>
+<p><code>wget <a href="https://raw.githubusercontent.com/divx118/crouton-packages/master/change-kernel-flags" class="bare">https://raw.githubusercontent.com/divx118/crouton-packages/master/change-kernel-flags</a></code></p>
+</li>
+<li>
+<p><code>sudo sh ~/Downloads/change-kernel-flags</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>This may be undone with <code>sudo sh ~/Downloads/change-kernel-flags -r</code></p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+The kernel flag setting must be redone after each ChromeOS update.
+</td>
+</tr>
+</table>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cd /usr/local</code></p>
+</li>
+<li>
+<p><code>sudo wget "https://raw.github.com/divx118/cifs/master/mountcifs.tar.gz"</code></p>
+</li>
+<li>
+<p><code>sudo tar xvf mountcifs.tar.gz</code></p>
+</li>
+<li>
+<p>Edit the fstab, <code>sudo vi ./etc/fstab</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Mine looks like:</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>//192.168.123.135/Public        /media/removable/public smbfs   username=myuser,password=mypass,rw,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0</pre>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_using_the_mount">Using the Mount</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Start with <code>sudo mountcifs start</code></p>
+</li>
+<li>
+<p>Start you linux desktop</p>
+</li>
+<li>
+<p>Stop with <code>sudo mountcifs stop</code></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_references">References</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -154,7 +252,7 @@ All of these procedures work on an ASUS C200 Chromebook. Some steps may not work
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-03-18 11:10:28 CDT
+Last updated 2017-03-18 15:05:09 CDT
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
