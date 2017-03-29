@@ -29,6 +29,8 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 * link:letsencrypt.html[Let's Encrypt]
 * link:self-sign_powershell.html[Self-Sign a Powershell Script]
 * link:screenshot_task.html[Screenshot Task]
+* link:install_wordpress.html[Install and Maintain WordPress]
+* link:crouton.html[Crouton on a Chromebook]
 
 == Archived
 
@@ -36,13 +38,13 @@ https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub 
 == In Progress
 
 * link:elastic_search.html[Elasticsearch]
-* link:install_wordpress.html[Install and Maintain WordPress]
-* link:crouton.html[Crouton on a Chromebook]
 * link:aciidoctor.html[AsciiDoctor]
 * link:nginx.html[NGINX]
 * link:nodejs.html[Node.js]
 * link:easyrtc.html[EasyRTC]
 * link:polymer.html[Polymer]
+* link:complete-the-square.html[MATH: Complete the Square]
+* link:dev-env-node.html[My Node Development Environment]
 
 
 == Obsolete
