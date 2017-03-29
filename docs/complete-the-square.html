@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="description" content="In elementary algebra, completing the square is a technique for converting a quadratic polynomial into a more useable format. Completing the square is used in: solving quadratic equations, graphing quadratic functions, evaluating integrals in calculus, such as Gaussian integrals with a linear term in the exponent, and finding Laplace transforms.">
+<meta name="keywords" content="">
+<meta name="author" content="Gary Dalton">
+<title>Algebra: Completing the Square</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+</head>
+<body class="article">
+<div id="header">
+<h1>Algebra: Completing the Square</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">23 March 2017</span>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_general_steps_for_completing_the_square">General Steps for Completing the Square</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_start">Start</h3>
+<div class="paragraph">
+<p>With and equation of the form:</p>
+</div>
+<div class="paragraph">
+<p>\$ax^2 + bx + c = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_1">Step 1</h3>
+<div class="paragraph">
+<p>Put parentheses around the x terms:</p>
+</div>
+<div class="paragraph">
+<p>\$(ax^2 + bx) + c = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2">Step 2</h3>
+<div class="paragraph">
+<p>Factor out the a term:</p>
+</div>
+<div class="paragraph">
+<p>\$a(x^2 + b/ax) + c = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3">Step 3</h3>
+<div class="paragraph">
+<p>Inside the parentheses, add \$(1/2*b/a)^2\$:</p>
+</div>
+<div class="paragraph">
+<p>\$a(x^2 + b/ax + (b/(2a))^2) + c = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_4">Step 4</h3>
+<div class="paragraph">
+<p>Outside the parentheses, subtract \$b^2/(4a)\$:</p>
+</div>
+<div class="paragraph">
+<p>\$a(x^2 + b/ax + (b/(2a))^2) + c - b^2/(4a) = 0\$</p>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+This balances Step 3 by subtracting the same value as was added.
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_5">Step 5</h3>
+<div class="paragraph">
+<p>Factor the quadratic term within the parentheses:</p>
+</div>
+<div class="paragraph">
+<p>\$a(x + b/(2a))^2 + c - b^2/(4a) = 0\$</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_example_of_completing_the_square">Example of Completing the Square</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_start_2">Start</h3>
+<div class="paragraph">
+<p>\$6x^2 + 18x - 25 = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_1_2">Step 1</h3>
+<div class="paragraph">
+<p>\$(6x^2 + 18x) - 25 = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_2_2">Step 2</h3>
+<div class="paragraph">
+<p>\$6(x^2 + 18/6x) - 25 = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_3_2">Step 3</h3>
+<div class="paragraph">
+<p>\$6(x^2 + 3x + (18/(2*6))^2) - 25 = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_4_2">Step 4</h3>
+<div class="paragraph">
+<p>\$6(x^2 + 3x + (3/2)^2) - 25 - 18^2/(4*6)= 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_step_5_2">Step 5</h3>
+<div class="paragraph">
+<p>\$6(x + 3/2)^2 - 25 - 324/24 = 0\$</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_simplify">Simplify</h3>
+<div class="paragraph">
+<p>\$6(x + 3/2)^2 - 50/2 - 27/2 = 0\$</p>
+</div>
+<div class="paragraph">
+<p>\$6(x + 3/2)^2 - 77/2 = 0\$</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2017-03-23 10:02:44 Central Daylight Time
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.6.0/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</body>
+</html>

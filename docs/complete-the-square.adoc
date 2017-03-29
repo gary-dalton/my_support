@@ -1,0 +1,111 @@
+= Algebra: Completing the Square
+Gary Dalton <https://github.com/gary-dalton>
+:description: In elementary algebra, completing the square is a technique for converting a quadratic polynomial into a more useable format. Completing the square is used in: solving quadratic equations, graphing quadratic functions, evaluating integrals in calculus, such as Gaussian integrals with a linear term in the exponent, and finding Laplace transforms.
+:revnumber: 1.0
+:revdate: 23 March 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+//:toc: left
+//:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets complete-the-square.adoc
+:keywords:
+:stem: asciimath
+
+
+//link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+//{description}
+
+//https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== General Steps for Completing the Square
+
+=== Start
+
+With and equation of the form:
+
+stem:[ax^2 + bx + c = 0]
+
+
+=== Step 1
+
+Put parentheses around the x terms:
+
+stem:[(ax^2 + bx) + c = 0]
+
+
+=== Step 2
+
+Factor out the a term:
+
+stem:[a(x^2 + b/ax) + c = 0]
+
+
+=== Step 3
+
+Inside the parentheses, add stem:[(1/2*b/a)^2]:
+
+stem:[a(x^2 + b/ax + (b/(2a))^2) + c = 0]
+
+
+=== Step 4
+
+Outside the parentheses, subtract stem:[b^2/(4a)]:
+
+stem:[a(x^2 + b/ax + (b/(2a))^2) + c - b^2/(4a) = 0]
+
+NOTE: This balances Step 3 by subtracting the same value as was added.
+
+
+=== Step 5
+
+Factor the quadratic term within the parentheses:
+
+stem:[a(x + b/(2a))^2 + c - b^2/(4a) = 0]
+
+
+== Example of Completing the Square
+
+=== Start
+
+stem:[6x^2 + 18x - 25 = 0]
+
+
+=== Step 1
+
+stem:[(6x^2 + 18x) - 25 = 0]
+
+
+=== Step 2
+
+stem:[6(x^2 + 18/6x) - 25 = 0]
+
+
+=== Step 3
+
+stem:[6(x^2 + 3x + (18/(2*6))^2) - 25 = 0]
+
+
+=== Step 4
+
+stem:[6(x^2 + 3x + (3/2)^2) - 25 - 18^2/(4*6)= 0]
+
+
+=== Step 5
+
+stem:[6(x + 3/2)^2 - 25 - 324/24 = 0]
+
+
+=== Simplify
+
+stem:[6(x + 3/2)^2 - 50/2 - 27/2 = 0]
+
+stem:[6(x + 3/2)^2 - 77/2 = 0]
