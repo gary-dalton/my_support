@@ -285,7 +285,7 @@ Make a tar archive of your certificates:
 
 * `sudo cd /etc/letsencrypt/archive/yourdomain.com`
 * `sudo tar -czvf gogoat.tgz *??.pem`, Replace ?? with the latest number.
-* `sudo chown loginuser:loginuser yourarchive.tgz`, Replace loginuser with your none root username.
+* `sudo chown loginuser:loginuser yourarchive.tgz`, Replace loginuser with your root username.
 * `sudo mv yourarchive.tgz /home/loginuser`
 
 * Use SCP or WinSCP to move the certificate to the server where it is needed.
