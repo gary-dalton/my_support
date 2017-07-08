@@ -30,6 +30,7 @@ Validated data sources will, by necessity, not cover the current year.
 
 == Terrorism
 
+* https://www.brennancenter.org/analysis/cve-programs-resource-page
 * http://www.start.umd.edu/
 * https://www.start.umd.edu/gtd/
 * https://ourworldindata.org/terrorism/

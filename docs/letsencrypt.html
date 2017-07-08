@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.4">
+<meta name="generator" content="Asciidoctor 1.5.5">
 <meta name="description" content="Using Let's Encrypt as a free, automated, and open Certificate Authority on Ubuntu server. See https://letsencrypt.org/">
 <meta name="keywords" content="https, letsencrypt, website, security, apache, nginx, ssl">
 <meta name="author" content="Gary Dalton">
 <title>Let&#8217;s Encrypt</title>
 <link rel="stylesheet" href="stylesheets/github.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
 <link rel="stylesheet" href="stylesheets/coderay-asciidoctor.css">
 </head>
 <body class="article toc2 toc-left">
@@ -27,7 +27,11 @@
 <ul class="sectlevel1">
 <li><a href="#_requirements">Requirements</a></li>
 <li><a href="#_resources">Resources</a></li>
-<li><a href="#_install_certbot">Install Certbot</a></li>
+<li><a href="#_install_certbot">Install Certbot</a>
+<ul class="sectlevel2">
+<li><a href="#_alternative_install">Alternative Install</a></li>
+</ul>
+</li>
 <li><a href="#_nginx">Nginx</a>
 <ul class="sectlevel2">
 <li><a href="#_get_the_certificate">Get the certificate</a></li>
@@ -46,6 +50,12 @@
 <li><a href="#_using_certbot_auto">Using certbot-auto</a>
 <ul class="sectlevel2">
 <li><a href="#_renewal">Renewal</a></li>
+</ul>
+</li>
+<li><a href="#_certbot_manual">Certbot Manual</a>
+<ul class="sectlevel2">
+<li><a href="#_authenticate_and_get_certificate">Authenticate and get certificate</a></li>
+<li><a href="#_move_and_install_certificate">Move and install certificate</a></li>
 </ul>
 </li>
 <li><a href="#_miscellaneaus_certificate_commands">Miscellaneaus Certificate Commands</a>
@@ -116,6 +126,31 @@
 <p><code>sudo apt-get install letsencrypt</code></p>
 </li>
 </ul>
+</div>
+<div class="sect2">
+<h3 id="_alternative_install">Alternative Install</h3>
+<div class="paragraph">
+<p>Uses a Certbot maintained PPA.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>sudo apt update</p>
+</li>
+<li>
+<p>sudo apt install software-properties-common</p>
+</li>
+<li>
+<p>sudo add-repository ppa:certbot/certbot</p>
+</li>
+<li>
+<p>sudo apt update</p>
+</li>
+<li>
+<p>sudo apt install certbot</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -427,6 +462,119 @@ LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b" vhost_common
 </div>
 </div>
 <div class="sect1">
+<h2 id="_certbot_manual">Certbot Manual</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>I use Certbot manual to manage certificates for servers not running web services, i.e email servers. There are multiple ways to verify your ownership using <em>manual</em> but I prefer using the DNS challenge which requires setting a TXT value in the domain record.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://letsencrypt.readthedocs.io/en/latest/using.html">Certbot User Guide</a></p>
+</li>
+<li>
+<p><a href="https://letsencrypt.readthedocs.io/en/latest/using.html#certbot-commands">Command-line Options</a></p>
+</li>
+</ul>
+</div>
+<div class="sect2">
+<h3 id="_authenticate_and_get_certificate">Authenticate and get certificate</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo certbot certonly --manual -d yourdoamin.com --preferred-challenges=dns</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>This requests permission to log your IP address and then asks:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Please deploy a DNS TXT record under the name
+_acme-challenge.yourdomain.com with the following value:
+some_text_provided_on_the_screen</pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When successful, it concludes with:</p>
+</div>
+<div class="literalblock">
+<div class="content">
+<pre>Congratulations! Your certificate and chain have been saved at
+/etc/letsencrypt/live/yourdomain.com/fullchain.pem. Your cert will
+expire on 2017-10-06. To obtain a new or tweaked version of this
+certificate in the future, simply run certbot again. To
+non-interactively renew *all* of your certificates, run "certbot
+renew"</pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_move_and_install_certificate">Move and install certificate</h3>
+<div class="paragraph">
+<p>Make a tar archive of your certificates:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo cd /etc/letsencrypt/archive/yourdomain.com</code></p>
+</li>
+<li>
+<p><code>sudo tar -czvf gogoat.tgz *??.pem</code>, Replace ?? with the latest number.</p>
+</li>
+<li>
+<p><code>sudo chown loginuser:loginuser yourarchive.tgz</code>, Replace loginuser with your none root username.</p>
+</li>
+<li>
+<p><code>sudo mv yourarchive.tgz /home/loginuser</code></p>
+</li>
+<li>
+<p>Use SCP or WinSCP to move the certificate to the server where it is needed.</p>
+</li>
+<li>
+<p>Once moved, delete the tgz file from the source server.</p>
+</li>
+<li>
+<p>Now switch to the server needing the certificate.</p>
+</li>
+<li>
+<p>Unarchive the tgz.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>For my email server, I need the private key concatenated with the full chain.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>cat privkey.pem &gt; servercert.pem</code></p>
+</li>
+<li>
+<p><code>cat fullchain.pem &gt;&gt; servercert.pem</code></p>
+</li>
+<li>
+<p>Make appropriate backups of your previous certificate chains.</p>
+</li>
+<li>
+<p>Move the new servercert.pem into place.</p>
+</li>
+<li>
+<p>Verify file ownerships and permissions.</p>
+</li>
+<li>
+<p>Chmod on servercert.pem to 400.</p>
+</li>
+<li>
+<p>Restart your services</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_miscellaneaus_certificate_commands">Miscellaneaus Certificate Commands</h2>
 <div class="sectionbody">
 <div class="sect2">
@@ -491,7 +639,7 @@ LogFormat "%v %h %l %u %t \"%r\" %&gt;s %b" vhost_common
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-02-13 11:42:30 Central Standard Time
+Last updated 2017-07-08 14:39:11 Central Daylight Time
 </div>
 </div>
 </body>

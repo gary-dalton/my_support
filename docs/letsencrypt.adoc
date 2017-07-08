@@ -41,6 +41,16 @@ Since Certbot is packaged for your system, all you'll need to do is apt-get the 
 * `sudo apt upgrade`
 * `sudo apt-get install letsencrypt`
 
+=== Alternative Install
+
+Uses a Certbot maintained PPA.
+
+* sudo apt update
+* sudo apt install software-properties-common
+* sudo add-repository ppa:certbot/certbot
+* sudo apt update
+* sudo apt install certbot
+
 
 == Nginx
 
@@ -242,6 +252,57 @@ Certbot-auto is for those systems which do not have a certbot package. The comma
 new certificate deployed with reload of apache server; fullchain is
 /etc/letsencrypt/live/yourdomain.com/fullchain.pem
 ----
+
+== Certbot Manual
+
+I use Certbot manual to manage certificates for servers not running web services, i.e email servers. There are multiple ways to verify your ownership using _manual_ but I prefer using the DNS challenge which requires setting a TXT value in the domain record.
+
+* https://letsencrypt.readthedocs.io/en/latest/using.html[Certbot User Guide]
+* https://letsencrypt.readthedocs.io/en/latest/using.html#certbot-commands[Command-line Options]
+
+=== Authenticate and get certificate
+
+* `sudo certbot certonly --manual -d yourdoamin.com --preferred-challenges=dns`
+
+This requests permission to log your IP address and then asks:
+
+  Please deploy a DNS TXT record under the name
+  _acme-challenge.yourdomain.com with the following value:
+  some_text_provided_on_the_screen
+
+When successful, it concludes with:
+
+  Congratulations! Your certificate and chain have been saved at
+  /etc/letsencrypt/live/yourdomain.com/fullchain.pem. Your cert will
+  expire on 2017-10-06. To obtain a new or tweaked version of this
+  certificate in the future, simply run certbot again. To
+  non-interactively renew *all* of your certificates, run "certbot
+  renew"
+
+=== Move and install certificate
+
+Make a tar archive of your certificates:
+
+* `sudo cd /etc/letsencrypt/archive/yourdomain.com`
+* `sudo tar -czvf gogoat.tgz *??.pem`, Replace ?? with the latest number.
+* `sudo chown loginuser:loginuser yourarchive.tgz`, Replace loginuser with your none root username.
+* `sudo mv yourarchive.tgz /home/loginuser`
+
+* Use SCP or WinSCP to move the certificate to the server where it is needed.
+* Once moved, delete the tgz file from the source server.
+* Now switch to the server needing the certificate.
+* Unarchive the tgz.
+
+For my email server, I need the private key concatenated with the full chain.
+
+* `cat privkey.pem > servercert.pem`
+* `cat fullchain.pem >> servercert.pem`
+
+* Make appropriate backups of your previous certificate chains.
+* Move the new servercert.pem into place.
+* Verify file ownerships and permissions.
+* Chmod on servercert.pem to 400.
+* Restart your services
 
 
 == Miscellaneaus Certificate Commands
