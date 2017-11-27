@@ -304,6 +304,14 @@ For my email server, I need the private key concatenated with the full chain.
 * Chmod on servercert.pem to 400.
 * Restart your services
 
+=== Renew a manual certificate
+
+To renew a manually installed certificate as created above, use the following command.
+
+`sudo certbot certonly --manual --force-renewal -d domain1,domain2 --preferred-challenges=dns`
+
+Move and install this renewed certificate as previously shown.
+
 
 == Miscellaneaus Certificate Commands
 

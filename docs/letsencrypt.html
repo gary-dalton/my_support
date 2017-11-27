@@ -56,6 +56,7 @@
 <ul class="sectlevel2">
 <li><a href="#_authenticate_and_get_certificate">Authenticate and get certificate</a></li>
 <li><a href="#_move_and_install_certificate">Move and install certificate</a></li>
+<li><a href="#_renew_a_manual_certificate">Renew a manual certificate</a></li>
 </ul>
 </li>
 <li><a href="#_miscellaneaus_certificate_commands">Miscellaneaus Certificate Commands</a>
@@ -572,6 +573,18 @@ renew"</pre>
 </ul>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_renew_a_manual_certificate">Renew a manual certificate</h3>
+<div class="paragraph">
+<p>To renew a manually installed certificate as created above, use the following command.</p>
+</div>
+<div class="paragraph">
+<p><code>sudo certbot certonly --manual --force-renewal -d domain1,domain2 --preferred-challenges=dns</code></p>
+</div>
+<div class="paragraph">
+<p>Move and install this renewed certificate as previously shown.</p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -639,7 +652,7 @@ renew"</pre>
 <div id="footer">
 <div id="footer-text">
 Version 1.0<br>
-Last updated 2017-07-08 14:42:24 Central Daylight Time
+Last updated 2017-11-27 11:09:44 Central Standard Time
 </div>
 </div>
 </body>
