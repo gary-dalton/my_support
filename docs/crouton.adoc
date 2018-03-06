@@ -49,7 +49,7 @@ from https://github.com/dnschneid/crouton
 ** Answer the prompts and wait for the install to complete
 * Start your full Linux desktop with `sudo startxfce4`
 
-== Mount a SMB Share into Linux
+== Mount a SMB Share into Linux (NOT CURRENTLY WORKING)
 
 Chrome has an extension that finally makes it easy to mount SMB shares in ChromeOS. The problem comes when trying to share this mount into the Linux desktop.
 

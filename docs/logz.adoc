@@ -1,0 +1,37 @@
+= Working with logz.io
+Gary Dalton <https://github.com/gary-dalton>
+:description: Getting started with logz.io
+:revnumber: 1.0
+:revdate: 26 July 2017
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets logz.adoc
+:keywords: monitoring, log, elastic, elk, filebeat, logz.io, prometheus
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+
+== logz.io
+
+Learn what this is at https://logz.io/.
+
+Register for an account and follow the basic steps to get started. Once you get
+to the step for importing logs, choose *Filebeat*.
+
+=== Filebeat
+
+Filebeat must be installed and configured on each system that sends logs to
+logz.io. Follow the guide at https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-installation.html

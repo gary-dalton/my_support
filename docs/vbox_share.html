@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.5">
+<meta name="description" content="How-to share a folder between the host and guest operating systems using Virtual Box.">
+<meta name="keywords" content="virtualbox, ubuntu, sharedfolders">
+<meta name="author" content="Gary Dalton">
+<title>Virtual Box Shared Folders</title>
+<link rel="stylesheet" href="stylesheets/github.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css">
+</head>
+<body class="article toc2 toc-left">
+<div id="header">
+<h1>Virtual Box Shared Folders</h1>
+<div class="details">
+<span id="author" class="author">Gary Dalton</span><br>
+<span id="email" class="email"><a href="https://github.com/gary-dalton" class="bare">https://github.com/gary-dalton</a></span><br>
+<span id="revnumber">version 1.0,</span>
+<span id="revdate">03 March 2018</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_virtual_box">Virtual Box</a></li>
+<li><a href="#_context">Context</a></li>
+<li><a href="#_sharing_the_folder">Sharing the Folder</a></li>
+<li><a href="#_verify_the_share">Verify the Share</a></li>
+<li><a href="#_permissions_on_the_share">Permissions on the Share</a></li>
+<li><a href="#_reinstalling_the_guest_additions_cd">Reinstalling the Guest Additions CD</a></li>
+<li><a href="#_references">References</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="index.html">My Support</a> | <a href="https://gary-dalton.github.io/">Home</a></p>
+</div>
+<div class="paragraph">
+<p>How-to share a folder between the host and guest operating systems using Virtual Box.</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/gary-dalton/my_support/tree/master">View on GitHub <span class="image"><img src="images/GitHub-Mark-32px.png" alt="GitHub Mark 32px"></span></a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_virtual_box">Virtual Box</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>VirtualBox is a free and open-source hypervisor for x86 computers currently being developed by Oracle Corporation. <a href="http://www.oracle.com/technetwork/server-storage/virtualbox/downloads/index.html" class="bare">http://www.oracle.com/technetwork/server-storage/virtualbox/downloads/index.html</a></p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_context">Context</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The host OS is Windows 10 and the guest OS is Ubuntu. The guest OS is working normally. You have already created a folder on the host that you would like to share with the guest. Sharing folders between the host and guest OS is often helpful.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_sharing_the_folder">Sharing the Folder</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Log into the guest OS</p>
+</li>
+<li>
+<p><em>Insert the Guest Additions CD image</em>
+<span class="image"><img src="images/vb_guest_cd.jpg" alt="vb guest cd"></span></p>
+</li>
+<li>
+<p>Allow the script to run and install new capabilities</p>
+</li>
+<li>
+<p>Shutdown the guest OS</p>
+</li>
+<li>
+<p>From the VirtualBox Manager, select the Settings snd then the Shared Folders for your VM
+<span class="image"><img src="images/vb_shared_folders.jpg" alt="vb shared folders"></span></p>
+</li>
+<li>
+<p>Click <em>Add new shared folder</em></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Folder Path is the location on your host OS</p>
+</li>
+<li>
+<p>Folder Name is the name for your guest OS</p>
+</li>
+<li>
+<p>Check Auto-mount and Make Permanent</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_verify_the_share">Verify the Share</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p>Start your guest OS</p>
+</li>
+<li>
+<p>Start a terminal</p>
+</li>
+<li>
+<p>Enter <code>ls /media</code></p>
+<div class="ulist">
+<ul>
+<li>
+<p>Should display a listing that includes the folder name you provided prefixed with sf_</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>If your shared folder is not shown or you received and error such as <em>VBoxClient (seamless): failed to start. Stage: Setting guest IRQ filter mask Error: VERR_INTERNAL_ERROR</em>, please see <a href="#_reinstalling_the_guest_additions_cd">Reinstalling the Guest Additions CD</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_permissions_on_the_share">Permissions on the Share</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>By default, guest OS general users do not have permission to view the share. The share is available to users in the <strong>vboxsf</strong> group. Add your username to this group.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>sudo usermod -aG vboxsf username</code></p>
+</li>
+<li>
+<p>Log out</p>
+</li>
+<li>
+<p>Log in</p>
+</li>
+<li>
+<p>Verify that you can now view files within your shared folder</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_reinstalling_the_guest_additions_cd">Reinstalling the Guest Additions CD</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>If you had problems viewing the shared folder inside your guest OS and all other settings are correct, perhaps the Guest Additions did not properly install.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Open a terminal on the guest OS</p>
+</li>
+<li>
+<p><code>sudo apt-get install gcc make perl</code></p>
+</li>
+<li>
+<p><em>Insert the Guest Additions CD image</em>
+<span class="image"><img src="images/vb_guest_cd.jpg" alt="vb guest cd"></span></p>
+</li>
+<li>
+<p>Allow the script to run and install new capabilities</p>
+</li>
+<li>
+<p>Reboot</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_references">References</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="https://askubuntu.com/questions/985815/vboxclient-seamless-failed-to-start-stage-setting-guest-irq-filter-mask-err" class="bare">https://askubuntu.com/questions/985815/vboxclient-seamless-failed-to-start-stage-setting-guest-irq-filter-mask-err</a></p>
+</li>
+<li>
+<p><a href="https://www.virtualbox.org/manual/ch04.html#sharedfolders" class="bare">https://www.virtualbox.org/manual/ch04.html#sharedfolders</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version 1.0<br>
+Last updated 2018-03-05 17:11:40 Central Standard Time
+</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
+</html>

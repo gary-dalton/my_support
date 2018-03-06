@@ -1,0 +1,87 @@
+= Anaconda
+Gary Dalton <https://github.com/gary-dalton>
+:description: Anaconda is an excellent python data science environment
+:revnumber: 1.0
+:revdate: 03 March 2018
+:license: Creative Commons BY-SA
+:homepage: https://gary-dalton.github.io/
+:githubuser: gary-dalton
+:githubrepo: my_support
+:githubbranch: master
+:icons: font
+:toc: left
+:toclevels: 4
+:source-highlighter: highlightjs
+:css: stylesheets/stylesheet.css
+:linkcss:
+:cli: asciidoctor -a stylesheet=github.css -a stylesdir=stylesheets anaconda.adoc
+:keywords: anaconda, datascience, python, snippets
+
+
+link:index.html[My Support] | https://gary-dalton.github.io/[Home]
+
+{description}
+
+https://github.com/{githubuser}/{githubrepo}/tree/{githubbranch}[View on GitHub image:images/GitHub-Mark-32px.png[]]
+
+== Anaconda
+
+Open Data Science Core: Anaconda is a package manager, an environment manager, a Python distribution, and a collection of over 1,000+ open source packages. It is free and easy to install, and it offers free community support. https://anaconda.org/
+
+
+== Context
+
+Anaconda is well documented and has excellent support. All I include here are a few tasks that I have had to repeat.
+
+
+== Jupyter
+
+
+=== Activate and deactivate the environment
+
+* Windows: `activate env_name`
+** `deactivate env_name`
+* Linux: `source activate env_name`
+** `source deactivate env_name`
+
+
+=== Run a notebook
+
+`jupyter notebook`
+
+
+=== Save the files of a notebook tree into an archive (assumes system with tar)
+
+* When in a notebook, go to a new cell
+* `!tar chzf notebook.tgz --exclude notebook.tgz *` (change notebook to your choice)
+
+
+=== Download that archive
+
+* From the Jupyter _File_ menu, select _Open_
+* Click the archive you created, i.e. _notebook.tgz_
+* It will download to your location
+* Unarchive to use it
+
+
+=== Run a command in a notebook
+
+Prepend the command with *!*
+
+
+=== Build identical environment
+
+The operating systems of the host computers must be similar. This cannot be done to copy a Linux environment to Windows.
+
+First a listing of the environment is needed.
+
+* Try `conda list --explicit`
+** If you get an error similar to _Error: environment does not exist: ../anaconda/envs/name/envs/name_
+* Then try `conda list -n root --explicit`
+* To save the output to a file use a pipe appended to the end of the command, similar to `> spec-file.txt`
+* Next, on your anaconda installation: `conda create --name myenv --file spec-file.txt`
+
+
+== References
+
+* https://conda.io/docs/user-guide/tasks/manage-environments.html
